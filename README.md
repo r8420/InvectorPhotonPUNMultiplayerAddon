@@ -9,7 +9,7 @@ Follow these steps to setup photon to use this package properly.
 3. Go to your account page and setup a new app
 4. Grab your AppId
 
-    <img src="https://raw.githubusercontent.com/wesleywh/InvectorPhotonPUNMultiplayerAddon/master/setup_app_id.PNG" width="40%;" height="100%;" />
+    <img src="https://raw.githubusercontent.com/wesleywh/InvectorPhotonPUNMultiplayerAddon/master/setup_app_id.PNG" width="60%;" height="100%;" />
 5. Download PUN 2 from the Asset Store to Unity (NOT PUN)
    - assetstore.unity.com/packages/tools/network/pun-2-free-119922
 6. When the project starts add your appid from your created photon app to the pop-up window.
