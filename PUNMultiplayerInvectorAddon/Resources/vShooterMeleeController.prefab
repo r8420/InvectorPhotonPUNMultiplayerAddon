@@ -1451,8 +1451,6 @@ GameObject:
   - component: {fileID: 95102884749757230}
   - component: {fileID: 54874573260978136}
   - component: {fileID: 136000930847100516}
-  - component: {fileID: 114319996033500544}
-  - component: {fileID: 114300494049917496}
   - component: {fileID: 114160619299404332}
   - component: {fileID: 114786457644717484}
   - component: {fileID: 114528102979624576}
@@ -1470,8 +1468,11 @@ GameObject:
   - component: {fileID: 114339233362111078}
   - component: {fileID: 114471780125225326}
   - component: {fileID: 114562893642870108}
-  - component: {fileID: 114551019769553754}
+  - component: {fileID: 114963267217072668}
   - component: {fileID: 114264318628072432}
+  - component: {fileID: 114309114977458532}
+  - component: {fileID: 114674058597961624}
+  - component: {fileID: 114568165490903798}
   m_Layer: 8
   m_Name: vShooterMeleeController
   m_TagString: Player
@@ -4869,9 +4870,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2015bfb0faf97c42b3f4441a23786ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noneLocalTag: 
+  noneLocalTag: Enemy
   _syncBones: 1
-  _boneLerpRate: 30
+  _boneLerpRate: 90
 --- !u!114 &114273556263983762
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -4967,285 +4968,7 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
---- !u!114 &114300494049917496
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1690167241677954}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46ebb0c68fc51da4b94e466ea07cd110, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  openCloseEvents: 0
-  openCloseWindow: 1
-  selectedToolbar: 0
-  lockInput: 0
-  unlockCursorOnStart: 0
-  showCursorOnStart: 0
-  horizontalInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Horizontal
-    keyboardAxis: 0
-    joystick: LeftAnalogHorizontal
-    joystickAxis: 0
-    mobile: Horizontal
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  verticallInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Vertical
-    keyboardAxis: 0
-    joystick: LeftAnalogVertical
-    joystickAxis: 0
-    mobile: Vertical
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  jumpInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Space
-    keyboardAxis: 0
-    joystick: X
-    joystickAxis: 0
-    mobile: X
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  rollInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Q
-    keyboardAxis: 0
-    joystick: B
-    joystickAxis: 0
-    mobile: B
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  strafeInput:
-    useInput: 0
-    isAxisInUse: 0
-    keyboard: Tab
-    keyboardAxis: 0
-    joystick: RightStickClick
-    joystickAxis: 0
-    mobile: RightStickClick
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  sprintInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: LeftShift
-    keyboardAxis: 0
-    joystick: LeftStickClick
-    joystickAxis: 0
-    mobile: LeftStickClick
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  crouchInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: C
-    keyboardAxis: 0
-    joystick: Y
-    joystickAxis: 0
-    mobile: Y
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  lockCameraInput: 0
-  ignoreCameraRotation: 0
-  rotateToCameraWhileStrafe: 1
-  rotateCameraXInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Mouse X
-    keyboardAxis: 0
-    joystick: RightAnalogHorizontal
-    joystickAxis: 0
-    mobile: Mouse X
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  rotateCameraYInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Mouse Y
-    keyboardAxis: 0
-    joystick: RightAnalogVertical
-    joystickAxis: 0
-    mobile: Mouse Y
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  cameraZoomInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Mouse ScrollWheel
-    keyboardAxis: 0
-    joystick: Horizontal
-    joystickAxis: 0
-    mobile: Horizontal
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  tpCamera: {fileID: 0}
-  customCameraState: 
-  customlookAtPoint: 
-  changeCameraState: 0
-  smoothCameraState: 0
-  keepDirection: 0
-  OnLateUpdate:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114780357722388946}
-        m_MethodName: UpdateHeadTrack
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  cc: {fileID: 0}
-  hud: {fileID: 0}
-  weakAttackInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Mouse0
-    keyboardAxis: 0
-    joystick: RB
-    joystickAxis: 0
-    mobile: RB
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  strongAttackInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Alpha1
-    keyboardAxis: 0
-    joystick: RT
-    joystickAxis: 1
-    mobile: RT
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  blockInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Mouse1
-    keyboardAxis: 0
-    joystick: LB
-    joystickAxis: 0
-    mobile: LB
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  onUpdateInput:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Invector.vCharacterController.vMeleeCombatInput+OnUpdateEvent, Assembly-CSharp,
-      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  lockMeleeInput: 0
-  aimInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Mouse1
-    keyboardAxis: 0
-    joystick: LT
-    joystickAxis: 1
-    mobile: LT
-    mobileAxis: 1
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  shotInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Mouse0
-    keyboardAxis: 0
-    joystick: RT
-    joystickAxis: 1
-    mobile: RT
-    mobileAxis: 1
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  secundaryShotInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Mouse2
-    keyboardAxis: 0
-    joystick: X
-    joystickAxis: 1
-    mobile: X
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  reloadInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: R
-    keyboardAxis: 0
-    joystick: LB
-    joystickAxis: 0
-    mobile: LB
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  switchCameraSideInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Tab
-    keyboardAxis: 0
-    joystick: RightStickClick
-    joystickAxis: 0
-    mobile: RightStickClick
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
-  scopeViewInput:
-    useInput: 1
-    isAxisInUse: 0
-    keyboard: Z
-    keyboardAxis: 0
-    joystick: RB
-    joystickAxis: 0
-    mobile: RB
-    mobileAxis: 0
-    joystickAxisInvert: 0
-    keyboardAxisInvert: 0
-    mobileAxisInvert: 0
---- !u!114 &114319996033500544
+--- !u!114 &114309114977458532
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5253,15 +4976,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1690167241677954}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73fbf3aa05f6be24780438449f505aa3, type: 3}
+  m_Script: {fileID: 11500000, guid: 0dcd3065361c48740947f8da7ebff563, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  openCloseEvents: 1
+  openCloseEvents: 0
   openCloseWindow: 1
   selectedToolbar: 3
   _isDead: 0
   _currentHealth: 0
-  maxHealth: 200
+  maxHealth: 100
   healthRecovery: 0
   healthRecoveryDelay: 0
   currentHealthRecoveryDelay: 0
@@ -5317,7 +5040,7 @@ MonoBehaviour:
   headDetect: 0.95
   stopMoveLayer:
     serializedVersion: 2
-    m_Bits: 4096
+    m_Bits: 0
   stopMoveHeight: 0.65
   stopMoveDistance: 0.5
   useRootMotion: 0
@@ -5331,7 +5054,7 @@ MonoBehaviour:
     crouchSpeed: 2
   strafeSpeed:
     rotationSpeed: 10
-    walkByDefault: 1
+    walkByDefault: 0
     walkSpeed: 2
     runningSpeed: 3
     sprintSpeed: 4
@@ -5345,7 +5068,7 @@ MonoBehaviour:
   jumpForward: 3
   jumpHeight: 4
   groundCheckMethod: 1
-  groundMinDistance: 0.2
+  groundMinDistance: 0.25
   groundMaxDistance: 0.5
   stepOffsetEnd: 0.45
   stepOffsetStart: 0
@@ -5371,13 +5094,13 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 3
+  Synchronization: 1
   OwnershipTransfer: 0
   ObservedComponents:
-  - {fileID: 114551019769553754}
   - {fileID: 114471780125225326}
-  - {fileID: 114562893642870108}
+  - {fileID: 114963267217072668}
   - {fileID: 114264318628072432}
+  - {fileID: 114562893642870108}
   viewIdField: 0
   InstantiationId: 1
   isRuntimeInstantiated: 0
@@ -5537,20 +5260,6 @@ MonoBehaviour:
   ammoListData: {fileID: 11400000, guid: 63dd85acb3dbe1746ab7200f610a2d5f, type: 2}
   itemManager: {fileID: 0}
   ammos: []
---- !u!114 &114551019769553754
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1690167241677954}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 0
 --- !u!114 &114551804639674498
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5766,6 +5475,284 @@ MonoBehaviour:
     LayerIndex: 6
   - SynchronizeType: 1
     LayerIndex: 7
+--- !u!114 &114568165490903798
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1690167241677954}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a31d9903437a0a43bcf6f35880c0dec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  openCloseEvents: 0
+  openCloseWindow: 0
+  selectedToolbar: 0
+  lockInput: 0
+  unlockCursorOnStart: 0
+  showCursorOnStart: 0
+  horizontalInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Horizontal
+    keyboardAxis: 0
+    joystick: LeftAnalogHorizontal
+    joystickAxis: 0
+    mobile: Horizontal
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  verticallInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Vertical
+    keyboardAxis: 0
+    joystick: LeftAnalogVertical
+    joystickAxis: 0
+    mobile: Vertical
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  jumpInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Space
+    keyboardAxis: 0
+    joystick: X
+    joystickAxis: 0
+    mobile: X
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  rollInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Q
+    keyboardAxis: 0
+    joystick: B
+    joystickAxis: 0
+    mobile: B
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  strafeInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Tab
+    keyboardAxis: 0
+    joystick: RightStickClick
+    joystickAxis: 0
+    mobile: RightStickClick
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  sprintInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: LeftShift
+    keyboardAxis: 0
+    joystick: LeftStickClick
+    joystickAxis: 0
+    mobile: LeftStickClick
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  crouchInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: C
+    keyboardAxis: 0
+    joystick: Y
+    joystickAxis: 0
+    mobile: Y
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  lockCameraInput: 0
+  ignoreCameraRotation: 0
+  rotateToCameraWhileStrafe: 1
+  rotateCameraXInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Mouse X
+    keyboardAxis: 0
+    joystick: RightAnalogHorizontal
+    joystickAxis: 0
+    mobile: Mouse X
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  rotateCameraYInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Mouse Y
+    keyboardAxis: 0
+    joystick: RightAnalogVertical
+    joystickAxis: 0
+    mobile: Mouse Y
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  cameraZoomInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Mouse ScrollWheel
+    keyboardAxis: 0
+    joystick: 
+    joystickAxis: 0
+    mobile: 
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  tpCamera: {fileID: 0}
+  customCameraState: 
+  customlookAtPoint: 
+  changeCameraState: 0
+  smoothCameraState: 0
+  keepDirection: 0
+  OnLateUpdate:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 114780357722388946}
+        m_MethodName: UpdateHeadTrack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  cc: {fileID: 0}
+  hud: {fileID: 0}
+  weakAttackInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Mouse0
+    keyboardAxis: 0
+    joystick: RB
+    joystickAxis: 0
+    mobile: RB
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  strongAttackInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Alpha1
+    keyboardAxis: 0
+    joystick: RT
+    joystickAxis: 1
+    mobile: RT
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  blockInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Mouse1
+    keyboardAxis: 0
+    joystick: LB
+    joystickAxis: 0
+    mobile: LB
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  onUpdateInput:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: Invector.vCharacterController.vMeleeCombatInput+OnUpdateEvent, Assembly-CSharp,
+      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  lockMeleeInput: 0
+  aimInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Mouse1
+    keyboardAxis: 0
+    joystick: LT
+    joystickAxis: 1
+    mobile: LT
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  shotInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Mouse0
+    keyboardAxis: 0
+    joystick: RT
+    joystickAxis: 1
+    mobile: RT
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  secundaryShotInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Mouse2
+    keyboardAxis: 0
+    joystick: X
+    joystickAxis: 1
+    mobile: X
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  reloadInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: R
+    keyboardAxis: 0
+    joystick: LB
+    joystickAxis: 0
+    mobile: LB
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  switchCameraSideInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Tab
+    keyboardAxis: 0
+    joystick: RightStickClick
+    joystickAxis: 0
+    mobile: RightStickClick
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
+  scopeViewInput:
+    useInput: 1
+    isAxisInUse: 0
+    keyboard: Z
+    keyboardAxis: 0
+    joystick: RB
+    joystickAxis: 0
+    mobile: RB
+    mobileAxis: 0
+    joystickAxisInvert: 0
+    keyboardAxisInvert: 0
+    mobileAxisInvert: 0
 --- !u!114 &114581632857838724
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5955,6 +5942,18 @@ MonoBehaviour:
   holderObject: {fileID: 0}
   weaponObject: {fileID: 1490178546654584}
   equipDelayTime: 0
+--- !u!114 &114674058597961624
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1690167241677954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 507e5741cec8a42dc964c8e0a4b55bd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  directionDampTime: 0.25
 --- !u!114 &114685358429971814
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -6144,7 +6143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   openCloseEvents: 0
-  openCloseWindow: 0
+  openCloseWindow: 1
   selectedToolbar: 0
   Members:
   - transform: {fileID: 4679937686354544}
@@ -6418,7 +6417,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: SetLockMeleeInput
         m_Mode: 6
         m_Arguments:
@@ -6429,7 +6428,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: SetLockShooterInput
         m_Mode: 6
         m_Arguments:
@@ -6456,7 +6455,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: SetLockMeleeInput
         m_Mode: 6
         m_Arguments:
@@ -6467,7 +6466,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: SetLockShooterInput
         m_Mode: 6
         m_Arguments:
@@ -6494,7 +6493,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: SetLockMeleeInput
         m_Mode: 6
         m_Arguments:
@@ -6505,7 +6504,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: SetLockShooterInput
         m_Mode: 6
         m_Arguments:
@@ -6552,6 +6551,20 @@ MonoBehaviour:
   trigger: {fileID: 65672644534658168}
   damagePercentage: 100
   triggerType: -1
+--- !u!114 &114963267217072668
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1690167241677954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
 --- !u!114 &114994527257183684
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -6602,7 +6615,7 @@ MonoBehaviour:
   onOpenCloseInventory:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: ShowCursor
         m_Mode: 0
         m_Arguments:
@@ -6613,7 +6626,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: SetLockBasicInput
         m_Mode: 0
         m_Arguments:
@@ -6624,7 +6637,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: SetLockMeleeInput
         m_Mode: 0
         m_Arguments:
@@ -6635,7 +6648,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: SetLockShooterInput
         m_Mode: 0
         m_Arguments:
@@ -6646,7 +6659,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: LockCursor
         m_Mode: 0
         m_Arguments:
@@ -6657,7 +6670,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 114300494049917496}
+      - m_Target: {fileID: 0}
         m_MethodName: SetLockCameraInput
         m_Mode: 0
         m_Arguments:
@@ -6755,7 +6768,7 @@ MonoBehaviour:
     onApplyAttribute:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 114319996033500544}
+        - m_Target: {fileID: 0}
           m_MethodName: ChangeHealth
           m_Mode: 0
           m_Arguments:

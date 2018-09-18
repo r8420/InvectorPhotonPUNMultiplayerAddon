@@ -5,20 +5,23 @@ using Invector.vShooter;
 using Invector.vMelee;
 using Invector.vItemManager;
 using Invector.vCharacterController.vActions;
+using Invector;
 
 [RequireComponent(typeof(PhotonView))]
 [RequireComponent(typeof(PhotonTransformView))]
 [RequireComponent(typeof(PhotonAnimatorView))]
 [RequireComponent(typeof(PhotonRigidbodyView))]
-public class PUN_SyncPlayer : MonoBehaviour, IPunObservable
+public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
 {
     #region Reference Components
-    public string noneLocalTag;
+    public string noneLocalTag = "Enemy";
     private Transform local_head, local_neck, local_spine, local_chest = null;
     private Quaternion server_head, server_neck, server_spine, server_chest = Quaternion.identity;
-    private Quaternion potential_head, potential_neck, potential_spine, potential_chest = Quaternion.identity;
+    //private Quaternion potential_head, potential_neck, potential_spine, potential_chest = Quaternion.identity;
+
     PhotonView view;
     Animator animator;
+    //private float lag = 0.0f;
     #endregion
 
     #region Modifiables
@@ -33,11 +36,15 @@ public class PUN_SyncPlayer : MonoBehaviour, IPunObservable
     {
         animator = GetComponent<Animator>();
         view = GetComponent<PhotonView>();
+
+        if (GetComponent<PUN_ThirdPersonController>()) GetComponent<PUN_ThirdPersonController>().enabled = true;
+        
+
         if (view.IsMine == true && PhotonNetwork.IsConnected == true)
         {
-            if (GetComponent<vShooterMeleeInput>()) GetComponent<vShooterMeleeInput>().enabled = true;
-            if (GetComponent<vShooterManager>()) GetComponent<vShooterManager>().enabled = true;
             if (GetComponent<vMeleeManager>()) GetComponent<vMeleeManager>().enabled = true;
+            if (GetComponent<PUN_ShooterMeleeInput>()) GetComponent<PUN_ShooterMeleeInput>().enabled = true;
+            if (GetComponent<vShooterManager>()) GetComponent<vShooterManager>().enabled = true;
             if (GetComponent<vAmmoManager>()) GetComponent<vAmmoManager>().enabled = true;
             if (GetComponent<vHeadTrack>()) GetComponent<vHeadTrack>().enabled = true;
             if (GetComponent<vItemManager>()) GetComponent<vItemManager>().enabled = true;
@@ -118,24 +125,38 @@ public class PUN_SyncPlayer : MonoBehaviour, IPunObservable
         {
             if (stream.IsWriting)   //Authoritative player sending data to server
             {
+                //Bone Rotations
                 stream.SendNext(local_head.localRotation);
                 stream.SendNext(local_neck.localRotation);
                 stream.SendNext(local_spine.localRotation);
                 stream.SendNext(local_chest.localRotation);
             }
-            else if(stream.IsReading) //Network player copies receiving data from server
+            else  //Network player copies receiving data from server
             {
-                this.potential_head = (Quaternion)stream.ReceiveNext();
-                this.potential_neck = (Quaternion)stream.ReceiveNext();
-                this.potential_spine = (Quaternion)stream.ReceiveNext();
-                this.potential_chest = (Quaternion)stream.ReceiveNext();
+                //Bone Rotations
+                server_head = (Quaternion)stream.ReceiveNext();
+                server_neck = (Quaternion)stream.ReceiveNext();
+                server_spine = (Quaternion)stream.ReceiveNext();
+                server_chest = (Quaternion)stream.ReceiveNext();
 
-                server_head = (notNan(potential_head) && potential_head != Quaternion.identity) ? potential_head : server_head;
-                server_neck = (notNan(potential_neck) && potential_neck != Quaternion.identity) ? potential_neck : server_neck;
-                server_spine = (notNan(potential_spine) && potential_spine != Quaternion.identity) ? potential_spine : server_spine;
-                server_chest = (notNan(potential_chest) && potential_chest != Quaternion.identity) ? potential_chest : server_chest;
+                //lag = Mathf.Abs((float)(PhotonNetwork.Time - info.timestamp));
             }
         }
+    }
+
+    [PunRPC]
+    public void ApplyDamage(string amount)
+    {
+        if (GetComponent<PhotonView>().IsMine == true)
+        {
+            vDamage damage = JsonUtility.FromJson<vDamage>(amount);
+            GetComponent<vThirdPersonController>().TakeDamage(damage);
+        }
+    }
+    [PunRPC]
+    public void ResetTrigger(string name)
+    {
+        GetComponent<Animator>().ResetTrigger(name);
     }
     #endregion
 
@@ -149,6 +170,7 @@ public class PUN_SyncPlayer : MonoBehaviour, IPunObservable
     }
     void SyncBoneRotation()
     {
+        //Debug.Log(server_head);
         local_head.localRotation = Quaternion.Lerp(local_head.localRotation, server_head, Time.deltaTime * _boneLerpRate);
         local_neck.localRotation = Quaternion.Lerp(local_neck.localRotation, server_neck, Time.deltaTime * _boneLerpRate);
         local_spine.localRotation = Quaternion.Lerp(local_spine.localRotation, server_spine, Time.deltaTime * _boneLerpRate);
