@@ -39,7 +39,6 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
 
         if (GetComponent<PUN_ThirdPersonController>()) GetComponent<PUN_ThirdPersonController>().enabled = true;
         
-
         if (view.IsMine == true && PhotonNetwork.IsConnected == true)
         {
             if (GetComponent<vMeleeManager>()) GetComponent<vMeleeManager>().enabled = true;

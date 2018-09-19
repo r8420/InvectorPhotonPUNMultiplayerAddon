@@ -82,15 +82,15 @@ public class ModifyScripts : EditorWindow
 
     void M_AddMultiplayerToScripts()
     {
-        M_ShooterManager();
-        M_ControlAimCanvas();
-        M_MeleeManager();
-        M_MeleeCombatInputCS();
-        M_ThirdPersonAnimatorCS();
+        //M_ShooterManager();
+        //M_ControlAimCanvas();
+        //M_MeleeManager();
+        //M_MeleeCombatInputCS();
+        //M_ThirdPersonAnimatorCS();
         M_ThrowUI();
-        M_AIController();
-        M_HitBox();
-        M_ProjectileControl();
+        //M_AIController();
+        //M_HitBox();
+        //M_ProjectileControl();
     }
 
     #region Individual Files Modification Instructions
@@ -100,27 +100,15 @@ public class ModifyScripts : EditorWindow
         if (_monoBehavior.exists == true)
         {
             List<M_Additions> newlines = new List<M_Additions>();
-            M_Additions[] adding = new M_Additions[5];
+            M_Additions[] adding = new M_Additions[2];
             adding[0] = new M_Additions();
-            adding[0].target = "public class vThrowUI : MonoBehaviour";
-            adding[0].add = "public class vThrowUI : NetworkBehaviour";
+            adding[0].target = "private void Start()";
+            adding[0].add = "protected virtual void Start()";
             adding[0].type = M_FileAddtionType.Replace;
             adding[1] = new M_Additions();
-            adding[1].target = "void Start()";
-            adding[1].add = "protected virtual void Start()";
+            adding[1].target = "void UpdateCount()";
+            adding[1].add = "protected void UpdateCount()";
             adding[1].type = M_FileAddtionType.Replace;
-            adding[2] = new M_Additions();
-            adding[2].target = "throwManager = FindObjectOfType<vThrowObject>();";
-            adding[2].add = "//throwManager = FindObjectOfType<vThrowObject>();";
-            adding[2].type = M_FileAddtionType.Replace;
-            adding[3] = new M_Additions();
-            adding[3].target = "using UnityEngine.UI;";
-            adding[3].add = "using UnityEngine.Networking;";
-            adding[3].type = M_FileAddtionType.NewLine;
-            adding[4] = new M_Additions();
-            adding[4].target = "private void Start()";
-            adding[4].add = "protected virtual void Start()";
-            adding[4].type = M_FileAddtionType.Replace;
 
             newlines.AddRange(adding);
             ModifyFile(_monoBehavior.path, newlines);

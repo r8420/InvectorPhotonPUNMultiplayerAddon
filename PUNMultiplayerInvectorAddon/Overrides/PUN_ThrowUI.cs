@@ -8,7 +8,7 @@ public class PUN_ThrowUI : vThrowUI
 {
     protected override void Start()
     {
-        if (GetLocalPlayer())
+        if (GetLocalPlayer() != null)
         {
             base.Start();
         }
@@ -19,9 +19,12 @@ public class PUN_ThrowUI : vThrowUI
         if (throwManager == null && FindObjectOfType<vThrowObject>())
         {
             throwManager = GetLocalPlayer();
-            throwManager.onCollectObject.AddListener(UpdateCount);
-            throwManager.onThrowObject.AddListener(UpdateCount);
-            UpdateCount();
+            if (throwManager != null)
+            {
+                throwManager.onCollectObject.AddListener(UpdateCount);
+                throwManager.onThrowObject.AddListener(UpdateCount);
+                UpdateCount();
+            }
         }
     }
 
