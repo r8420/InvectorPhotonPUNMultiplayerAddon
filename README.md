@@ -21,8 +21,12 @@ Follow these steps to setup photon to use this package properly.
 1. Make sure the Invector Package is imported
 2. Make sure the pre-setup section is done!
 3. Import this package only selecting the modify scripts
+
+   <img src="https://raw.githubusercontent.com/wesleywh/InvectorPhotonPUNMultiplayerAddon/master/firstImport.JPG" width="40%;" height="100%;" />
 4. Open the menu Invector/Multiplayer/Add Multiplayer To Invector Scripts
 5. When done re-import this package and select everything
+
+   <img src="https://raw.githubusercontent.com/wesleywh/InvectorPhotonPUNMultiplayerAddon/master/secondImport.JPG" width="40%;" height="100%;" />
 6. Open Invector/Multiplayer/Make Player Multiplayer Compatible
 7. Follow the help box instructions
 8. When done make the player multiplayer compatible run the Invector/Multiplayer/Convert Scene To Multiplayer
