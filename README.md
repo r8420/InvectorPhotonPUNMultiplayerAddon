@@ -18,5 +18,28 @@ Follow these steps to setup photon to use this package properly.
 7. Done!
 
 ## Setup
-There isn't an official release for this since there are still a series of issues I am working through. If you want to jump ahead of the game and figure them out yourself just download the "PUNMultiplayerInvectorAddon" folder and import that into your project.
+1. Make sure the Invector Package is imported
+2. Make sure the pre-setup section is done!
+3. Import this package only selecting the modify scripts
+4. Open the menu Invector/Multiplayer/Add Multiplayer To Invector Scripts
+5. When done re-import this package and select everything
+6. Open Invector/Multiplayer/Make Player Multiplayer Compatible
+7. Follow the help box instructions
+8. When done make the player multiplayer compatible run the Invector/Multiplayer/Convert Scene To Multiplayer
+  - Note: This allows you to select which objects to modify. It is suggested to leave the tick box checked to avoid any problems.
 
+You're Done!
+
+## Menu Options
+
+### Convert Scene To Multiplayer
+This will find all Invector components on gameobjects and Rigidbodies that can be made to correctly sync or work with multiplayer. 
+
+### Add Multiplayer To Invector Scripts
+This will modify the actual invector scripts to work with multiplayer.
+
+### Create Network Manager
+This creates the network manager gameobject. You don't really need to run this as the "Make Player Multiplayer Compatible" option will do the same thing.
+
+### Make Player Multiplayer Compatible
+This copies your gameobject, adds needed components, creates a network manager (with example UI), and setups up the PhotonView component with needed values. It also makes a prefab of this compatible player and assigns that player to the spawnable player for the network manager.
