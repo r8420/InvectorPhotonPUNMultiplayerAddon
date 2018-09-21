@@ -14,7 +14,6 @@ using Invector;
 public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
 {
     #region Reference Components
-    public string noneLocalTag = "Enemy";
     private Transform local_head, local_neck, local_spine, local_chest = null;
     private Quaternion server_head, server_neck, server_spine, server_chest = Quaternion.identity;
     //private Quaternion potential_head, potential_neck, potential_spine, potential_chest = Quaternion.identity;
@@ -26,12 +25,17 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
 
     #region Modifiables
     [Tooltip("This will sync the bone positions. Makes it so players on the network can see where this player is looking.")]
-    [SerializeField] private bool _syncBones = true;
+    [SerializeField] private bool _syncBones = false;
     [Tooltip("How fast to move bones of network player version when it receives an update from the server.")]
     [SerializeField] private float _boneLerpRate = 90.0f;
+    [Tooltip("If this is not a locally controller version of this player change the objects tag to be this.")]
+    public string noneLocalTag = "Enemy";
+    [Tooltip("If this is not a locally controller version of this player change the objects layer to be this. (ONLY SELECT ONE!)")]
+    public int _nonAuthoritativeLayer = 9;
     #endregion
 
     #region Initializations
+    
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -58,6 +62,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             {
                 this.tag = noneLocalTag;
             }
+            SetLayer();
         }
         if (_syncBones == true)
         {
@@ -115,6 +120,11 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
     }
+    void SetLayer()
+    {
+        gameObject.layer = _nonAuthoritativeLayer;
+        animator.GetBoneTransform(HumanBodyBones.Hips).transform.parent.gameObject.layer = _nonAuthoritativeLayer;
+    }
     #endregion
 
     #region Server Sync Logic
@@ -162,7 +172,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     #region Local Actions Based on Server Changes
     void LateUpdate()
     {
-        if (GetComponent<PhotonView>().IsMine == false)
+        if (_syncBones == true && GetComponent<PhotonView>().IsMine == false)
         {
             SyncBoneRotation();
         }

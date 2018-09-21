@@ -4,10 +4,11 @@ using UnityEngine;
 using Photon.Pun;
 using System.Collections.Generic;
 using Invector.vCharacterController.AI;
+using Invector.vShooter;
 
 public class ConvertScene : EditorWindow
 {
-    [MenuItem("Invector/Multiplayer/Convert Scene To Multiplayer")]
+    [MenuItem("Invector/Multiplayer/03. Convert Scene To Multiplayer")]
     private static void PUN_ConvertSceneWindow()
     {
         GetWindow<ConvertScene>("PUN - Convert Scene To Multiplayer");
@@ -104,12 +105,23 @@ public class ConvertScene : EditorWindow
     private void PUN_ScanScene()
     {
         found.Clear();
+        //Find vThrowUI
         vThrowUI[] uis = FindObjectsOfType<vThrowUI>();
         foreach (vThrowUI ui in uis)
         {
             found.Add(ui.gameObject);
             buttonOn.Add(false);
         }
+
+        //Find Control Aim Canvas
+        vControlAimCanvas[] canvases = FindObjectsOfType<vControlAimCanvas>();
+        foreach (vControlAimCanvas canvas in canvases)
+        {
+            found.Add(canvas.gameObject);
+            buttonOn.Add(false);
+        }
+
+        //Find Rigidbodies
         Rigidbody[] bodies = FindObjectsOfType<Rigidbody>();
         foreach (Rigidbody body in bodies)
         {
@@ -138,6 +150,10 @@ public class ConvertScene : EditorWindow
             {
                 PUN_ConvertThrowUI(obj);
             }
+            else if (obj.GetComponent<vControlAimCanvas>() || obj.GetComponent<PUN_ControlAimCanvas>())
+            {
+                PUN_ConvertControlAimCanvas(obj);
+            }
             else if (obj.GetComponent<Rigidbody>())
             {
                 PUN_ConvertRigidbody(obj);
@@ -154,7 +170,11 @@ public class ConvertScene : EditorWindow
         {
             obj.GetComponent<PUN_ThrowUI>().maxThrowCount = obj.GetComponent<vThrowUI>().maxThrowCount;
             obj.GetComponent<PUN_ThrowUI>().currentThrowCount = obj.GetComponent<vThrowUI>().currentThrowCount;
-            obj.GetComponent<vThrowUI>().enabled = false;
+            vThrowUI ui = obj.GetComponent<vThrowUI>();
+            if (ui.GetType() != typeof(PUN_ThrowUI))
+            {
+                DestroyImmediate(ui);
+            }
         }
         obj.GetComponent<PUN_ThrowUI>().enabled = true;
 
@@ -175,6 +195,27 @@ public class ConvertScene : EditorWindow
         List<Component> observe = new List<Component>();
         observe.Add(obj.GetComponent<PhotonRigidbodyView>());
         obj.GetComponent<PhotonView>().ObservedComponents = observe;
+
+        modified.Add(obj);
+    }
+    private void PUN_ConvertControlAimCanvas(GameObject obj)
+    {
+        if (!obj.GetComponent<PUN_ControlAimCanvas>())
+        {
+            obj.AddComponent<PUN_ControlAimCanvas>();
+        }
+        if (obj.GetComponent<vControlAimCanvas>())
+        {
+            obj.GetComponent<PUN_ControlAimCanvas>().canvas = obj.GetComponent<vControlAimCanvas>().canvas;
+            obj.GetComponent<PUN_ControlAimCanvas>().aimCanvasCollection = obj.GetComponent<vControlAimCanvas>().aimCanvasCollection;
+            obj.GetComponent<PUN_ControlAimCanvas>().currentAimCanvas = obj.GetComponent<vControlAimCanvas>().currentAimCanvas;
+            vControlAimCanvas canvas = obj.GetComponent<vControlAimCanvas>();
+            if (canvas.GetType() != typeof(PUN_ControlAimCanvas))
+            {
+                DestroyImmediate(canvas);
+            }
+        }
+        obj.GetComponent<PUN_ControlAimCanvas>().enabled = true;
 
         modified.Add(obj);
     }

@@ -12,7 +12,7 @@ using System;
 public class SetupNetworking : EditorWindow
 {
 
-    [MenuItem("Invector/Multiplayer/Create Network Manager")]
+    [MenuItem("Invector/Multiplayer/(Optional) Create Network Manager")]
     private static void M_NetworkManager()
     {
         if (!FindObjectOfType<PUN_NetworkManager>())
@@ -40,7 +40,7 @@ public class SetupNetworking : EditorWindow
     bool paramSynced = false;
     float timer = 0.0f;
     GameObject _prefab = null;
-    [MenuItem("Invector/Multiplayer/Make Player Multiplayer Compatible")]
+    [MenuItem("Invector/Multiplayer/02. Make Player Multiplayer Compatible")]
     private static void M_MakePlayerMultiplayer()
     {
         GetWindow<SetupNetworking>("Photon PUN - Make Player Multiplayer Compatible");
@@ -135,6 +135,7 @@ public class SetupNetworking : EditorWindow
         }
         _prefab = prefab;
         ModifyComponents(prefab);
+        AssignDamageReceivers(prefab);
         MakeAndAssignPrefab(prefab);
     }
     void ModifyComponents(GameObject prefab)
@@ -190,6 +191,9 @@ public class SetupNetworking : EditorWindow
         prefab.GetComponent<PhotonTransformView>().enabled = true;
         prefab.GetComponent<PhotonAnimatorView>().enabled = true;
         if (prefab.GetComponent<vFootStep>()) prefab.GetComponent<vFootStep>().enabled = true;
+
+        //Enable Ragdoll colliders to shooter weapons can hit you
+        prefab.GetComponent<vRagdoll>().disableColliders = false;
     }
     void MakeAndAssignPrefab(GameObject prefab)
     {
@@ -261,6 +265,40 @@ public class SetupNetworking : EditorWindow
         if (paramSynced == true)
         {
             PrefabUtility.ReplacePrefab(prefab, PrefabUtility.GetCorrespondingObjectFromSource(prefab), ReplacePrefabOptions.ConnectToPrefab);
+        }
+    }
+    void AssignDamageReceivers(GameObject prefab)
+    {
+        TraverseChildren(prefab.transform.root);
+        foreach (Transform child in prefab.transform.root)
+        {
+            if (child.GetComponent<vDamageReceiver>())
+            {
+                vDamageReceiver original = child.GetComponent<vDamageReceiver>();
+
+                PUN_DamageReceiver pun = child.gameObject.AddComponent<PUN_DamageReceiver>();
+                pun.damageMultiplier = child.GetComponent<vDamageReceiver>().damageMultiplier;
+                pun.overrideReactionID = child.GetComponent<vDamageReceiver>().overrideReactionID;
+                
+                DestroyImmediate(original);
+            }
+        }
+    }
+    void TraverseChildren(Transform target)
+    {
+        if (target.GetComponent<vDamageReceiver>())
+        {
+            vDamageReceiver original = target.GetComponent<vDamageReceiver>();
+
+            PUN_DamageReceiver pun = target.gameObject.AddComponent<PUN_DamageReceiver>();
+            pun.damageMultiplier = target.GetComponent<vDamageReceiver>().damageMultiplier;
+            pun.overrideReactionID = target.GetComponent<vDamageReceiver>().overrideReactionID;
+
+            DestroyImmediate(original);
+        }
+        foreach(Transform child in target)
+        {
+            TraverseChildren(child);
         }
     }
 }
