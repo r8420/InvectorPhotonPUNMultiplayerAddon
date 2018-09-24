@@ -34,6 +34,9 @@ public class ModifyScripts : EditorWindow
     M_FileData _monoBehavior;
     M_FileData _damageReceiver;
     M_FileData _imeleeFighter;
+    M_FileData _itemManager;
+    M_FileData _ladderAction;
+    M_FileData _throwObject;
     #endregion
 
     [MenuItem("Invector/Multiplayer/01. Add Multiplayer To Invector Scripts")]
@@ -78,6 +81,9 @@ public class ModifyScripts : EditorWindow
         M_ThrowUI();
         M_DamageReceiver_Shooter();
         M_IMeleeFighter();
+        M_ItemManager();
+        M_LadderAction();
+        M_ThrowObject();
     }
 
     #region Individual Files Modification Instructions
@@ -156,6 +162,102 @@ public class ModifyScripts : EditorWindow
 
             newlines.AddRange(adding);
             ModifyFile(_imeleeFighter.path, newlines);
+        }
+    }
+    void M_ItemManager()
+    {
+        _itemManager = FileExists("vItemManager.cs", Application.dataPath);
+        if (_itemManager.exists == true)
+        {
+            List<M_Additions> newlines = new List<M_Additions>();
+            M_Additions[] adding = new M_Additions[3];
+            adding[0] = new M_Additions();
+            adding[0].target = "private float equipTimer;";
+            adding[0].add = "protected float equipTimer;";
+            adding[0].type = M_FileAddtionType.Replace;
+            adding[1] = new M_Additions();
+            adding[1].target = "IEnumerator EquipItemRoutine(EquipPoint equipPoint, vItem item)";
+            adding[1].add = "protected virtual IEnumerator EquipItemRoutine(EquipPoint equipPoint, vItem item)";
+            adding[1].type = M_FileAddtionType.Replace;
+            adding[2] = new M_Additions();
+            adding[2].target = "IEnumerator UnequipItemRoutine(EquipPoint equipPoint, vItem item)";
+            adding[2].add = "protected virtual IEnumerator UnequipItemRoutine(EquipPoint equipPoint, vItem item)";
+            adding[2].type = M_FileAddtionType.Replace;
+
+            newlines.AddRange(adding);
+            ModifyFile(_itemManager.path, newlines);
+        }
+    }
+    void M_LadderAction()
+    {
+        _ladderAction = FileExists("vLadderAction.cs", Application.dataPath);
+        if (_ladderAction.exists == true)
+        {
+            List<M_Additions> newlines = new List<M_Additions>();
+            M_Additions[] adding = new M_Additions[3];
+            adding[0] = new M_Additions();
+            adding[0].target = "void TriggerEnterLadder()";
+            adding[0].add = "protected virtual void TriggerEnterLadder()";
+            adding[0].type = M_FileAddtionType.Replace;
+            adding[1] = new M_Additions();
+            adding[1].target = "void ExitLadderInput()";
+            adding[1].add = "protected virtual void ExitLadderInput()";
+            adding[1].type = M_FileAddtionType.Replace;
+            adding[2] = new M_Additions();
+            adding[2].target = "void ResetPlayerSettings()";
+            adding[2].add = "protected virtual void ResetPlayerSettings()";
+            adding[2].type = M_FileAddtionType.Replace;
+
+            newlines.AddRange(adding);
+            ModifyFile(_ladderAction.path, newlines);
+        }
+    }
+    void M_ThrowObject()
+    {
+        _throwObject = FileExists("vThrowObject.cs", Application.dataPath);
+        if (_throwObject.exists == true)
+        {
+            List<M_Additions> newlines = new List<M_Additions>();
+            M_Additions[] adding = new M_Additions[9];
+            adding[0] = new M_Additions();
+            adding[0].target = "void UpdateInput()";
+            adding[0].add = "protected virtual void UpdateInput()";
+            adding[0].type = M_FileAddtionType.Replace;
+            adding[1] = new M_Additions();
+            adding[1].target = "private bool isAiming;";
+            adding[1].add = "protected bool isAiming;";
+            adding[1].type = M_FileAddtionType.Replace;
+            adding[2] = new M_Additions();
+            adding[2].target = "private bool inThrow;";
+            adding[2].add = "protected bool inThrow;";
+            adding[2].type = M_FileAddtionType.Replace;
+            adding[3] = new M_Additions();
+            adding[3].target = "vThirdPersonInput tpInput;";
+            adding[3].add = "protected vThirdPersonInput tpInput;";
+            adding[3].type = M_FileAddtionType.Replace;
+            adding[4] = new M_Additions();
+            adding[4].target = "private bool isThrowInput;";
+            adding[4].add = "protected bool isThrowInput;";
+            adding[4].type = M_FileAddtionType.Replace;
+            adding[5] = new M_Additions();
+            adding[5].target = "void UpdateThrow()";
+            adding[5].add = "protected virtual void UpdateThrow()";
+            adding[5].type = M_FileAddtionType.Replace;
+            adding[6] = new M_Additions();
+            adding[6].target = "private LineRenderer lineRenderer;";
+            adding[6].add = "protected LineRenderer lineRenderer;";
+            adding[6].type = M_FileAddtionType.Replace;
+            adding[7] = new M_Additions();
+            adding[7].target = "void DrawTrajectory()";
+            adding[7].add = "protected void DrawTrajectory()";
+            adding[7].type = M_FileAddtionType.Replace;
+            adding[8] = new M_Additions();
+            adding[8].target = "IEnumerator Launch()";
+            adding[8].add = "protected IEnumerator Launch()";
+            adding[8].type = M_FileAddtionType.Replace;
+
+            newlines.AddRange(adding);
+            ModifyFile(_throwObject.path, newlines);
         }
     }
     #endregion

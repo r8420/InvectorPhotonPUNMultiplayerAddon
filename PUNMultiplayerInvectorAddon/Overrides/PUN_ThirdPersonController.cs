@@ -5,6 +5,7 @@ using Photon.Pun;
 
 public class PUN_ThirdPersonController : vThirdPersonController
 {
+    private float idleCount;
 
     public override void TakeDamage(vDamage damage)
     {
@@ -29,17 +30,81 @@ public class PUN_ThirdPersonController : vThirdPersonController
             {
                 // set the ID of the reaction based on the attack animation state of the attacker - Check the MeleeAttackBehaviour script
                 if (reactionIDHash.isValid) animator.SetInteger(reactionIDHash, damage.reaction_id);
-                if (triggerReactionHash.isValid) animator.SetTrigger(triggerReactionHash);
-                if (triggerResetStateHash.isValid) animator.SetTrigger(triggerResetStateHash);
+                if (triggerReactionHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, triggerReactionHash);
+                if (triggerResetStateHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, triggerResetStateHash);
             }
             else
             {
                 if (recoilIDHash.isValid) animator.SetInteger(recoilIDHash, damage.recoil_id);
-                if (triggerRecoilHash.isValid) animator.SetTrigger(triggerRecoilHash);
-                if (triggerResetStateHash.isValid) animator.SetTrigger(triggerResetStateHash);
+                if (triggerRecoilHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, triggerRecoilHash);
+                if (triggerResetStateHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, triggerResetStateHash);
             }
         }
         if (damage.activeRagdoll)
             onActiveRagdoll.Invoke();
+    }
+
+    protected override void TriggerRandomIdle()
+    {
+        if (input != Vector2.zero || actions) return;
+
+        if (randomIdleTime > 0)
+        {
+            if (input.sqrMagnitude == 0 && !isCrouching && _capsuleCollider.enabled && isGrounded)
+            {
+                idleCount += Time.fixedDeltaTime;
+                if (idleCount > 6)
+                {
+                    idleCount = 0;
+                    GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "IdleRandomTrigger");
+                    animator.SetInteger("IdleRandom", Random.Range(1, 4));
+                }
+            }
+            else
+            {
+                idleCount = 0;
+                animator.SetInteger("IdleRandom", 0);
+            }
+        }
+    }
+
+    public override void Roll()
+    {
+        bool staminaCondition = currentStamina > rollStamina;
+        // can roll even if it's on a quickturn or quickstop animation
+        bool actionsRoll = !actions || (actions && (quickStop));
+        // general conditions to roll
+        bool rollConditions = (input != Vector2.zero || speed > 0.25f) && actionsRoll && isGrounded && staminaCondition && !isJumping;
+
+        if (!rollConditions || isRolling) return;
+
+        GetComponent<PhotonView>().RPC("CrossFadeInFixedTime", RpcTarget.All, "Roll", 0.1f);
+        ReduceStamina(rollStamina, false);
+        currentStaminaRecoveryDelay = 2f;
+    }
+
+    public override void TriggerAnimationState(string animationClip, float transition)
+    {
+        GetComponent<PhotonView>().RPC("CrossFadeInFixedTime", RpcTarget.All, animationClip, transition);
+    }
+
+    public override void Jump(bool consumeStamina = false)
+    {
+        if (customAction || GroundAngle() > slopeLimit) return;
+
+        bool staminaConditions = currentStamina > jumpStamina;
+        bool jumpConditions = !isCrouching && isGrounded && !actions && staminaConditions && !isJumping;
+        if (!jumpConditions) return;
+        jumpCounter = jumpTimer;
+        isJumping = true;
+        if (input.sqrMagnitude < 0.1f)
+            GetComponent<PhotonView>().RPC("CrossFadeInFixedTime", RpcTarget.All, "Jump", 0.1f);
+        else
+            GetComponent<PhotonView>().RPC("CrossFadeInFixedTime", RpcTarget.All, "JumpMove", 0.2f);
+        if (consumeStamina)
+        {
+            ReduceStamina(jumpStamina, false);
+            currentStaminaRecoveryDelay = 1f;
+        }
     }
 }

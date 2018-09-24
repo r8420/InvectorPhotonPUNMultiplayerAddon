@@ -6,17 +6,21 @@ using Invector.vMelee;
 using Invector.vItemManager;
 using Invector.vCharacterController.vActions;
 using Invector;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(PhotonView))]
-[RequireComponent(typeof(PhotonTransformView))]
-[RequireComponent(typeof(PhotonAnimatorView))]
+//[RequireComponent(typeof(PhotonTransformView))]
+//[RequireComponent(typeof(PhotonAnimatorView))]
 [RequireComponent(typeof(PhotonRigidbodyView))]
 public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
 {
-    #region Reference Components
+    #region Sync Components
     private Transform local_head, local_neck, local_spine, local_chest = null;
-    private Quaternion server_head, server_neck, server_spine, server_chest = Quaternion.identity;
-    //private Quaternion potential_head, potential_neck, potential_spine, potential_chest = Quaternion.identity;
+    private Quaternion correctBoneHeadRot, correctBoneNeckRot, correctBoneSpineRot, correctBoneChestRot = Quaternion.identity;
+    private Vector3 correctPlayerPos = Vector3.zero;
+    private Quaternion correctPlayerRot = Quaternion.identity;
+    private Dictionary<string, AnimatorControllerParameterType> animParams = new Dictionary<string, AnimatorControllerParameterType>();
+    private List<string> animTriggers = new List<string>();
 
     PhotonView view;
     Animator animator;
@@ -27,24 +31,29 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     [Tooltip("This will sync the bone positions. Makes it so players on the network can see where this player is looking.")]
     [SerializeField] private bool _syncBones = false;
     [Tooltip("How fast to move bones of network player version when it receives an update from the server.")]
-    [SerializeField] private float _boneLerpRate = 90.0f;
+    [SerializeField] private float _boneLerpRate = 5.0f;
+    [Tooltip("How fast to move to new position when the networked player receives and update from the server.")]
+    [SerializeField] private float _positionLerpRate = 5.0f;
+    [Tooltip("How fast to move to new rotation when the networked player receives and update from the server.")]
+    [SerializeField] private float _rotationLerpRate = 5.0f;
     [Tooltip("If this is not a locally controller version of this player change the objects tag to be this.")]
     public string noneLocalTag = "Enemy";
     [Tooltip("If this is not a locally controller version of this player change the objects layer to be this. (ONLY SELECT ONE!)")]
     public int _nonAuthoritativeLayer = 9;
     #endregion
 
-    #region Initializations
-    
+    #region Initializations 
     void Start()
     {
         animator = GetComponent<Animator>();
         view = GetComponent<PhotonView>();
 
         if (GetComponent<PUN_ThirdPersonController>()) GetComponent<PUN_ThirdPersonController>().enabled = true;
-        
+        if (GetComponent<vHitDamageParticle>()) GetComponent<vHitDamageParticle>().enabled = true;
+
         if (view.IsMine == true && PhotonNetwork.IsConnected == true)
         {
+            if (GetComponent<PUN_MeleeCombatInput>()) GetComponent<PUN_MeleeCombatInput>().enabled = true;
             if (GetComponent<vMeleeManager>()) GetComponent<vMeleeManager>().enabled = true;
             if (GetComponent<PUN_ShooterMeleeInput>()) GetComponent<PUN_ShooterMeleeInput>().enabled = true;
             if (GetComponent<vShooterManager>()) GetComponent<vShooterManager>().enabled = true;
@@ -55,6 +64,8 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             if (GetComponent<vGenericAction>()) GetComponent<vGenericAction>().enabled = true;
             if (GetComponent<vLadderAction>()) GetComponent<vLadderAction>().enabled = true;
             if (GetComponent<vThrowObject>()) GetComponent<vThrowObject>().enabled = true;
+            if (GetComponent<vItemManager>()) GetComponent<vItemManager>().enabled = true;
+            if (GetComponent<vLockOn>()) GetComponent<vLockOn>().enabled = true;
         }
         else
         {
@@ -68,6 +79,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
         {
             SetBones();
         }
+        BuildAnimatorParamsDict();
     }
     void SetBones()
     {
@@ -76,7 +88,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             try
             {
                 local_head = animator.GetBoneTransform(HumanBodyBones.Head).transform;
-                server_head = local_head.localRotation;
+                correctBoneHeadRot = local_head.localRotation;
             }
             catch (System.Exception e)
             {
@@ -88,7 +100,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             try
             {
                 local_neck = animator.GetBoneTransform(HumanBodyBones.Neck).transform;
-                server_neck = local_neck.localRotation;
+                correctBoneNeckRot = local_neck.localRotation;
             }
             catch (System.Exception e)
             {
@@ -100,7 +112,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             try
             {
                 local_spine = animator.GetBoneTransform(HumanBodyBones.Spine).transform;
-                server_spine = local_spine.localRotation;
+                correctBoneSpineRot = local_spine.localRotation;
             }
             catch (System.Exception e)
             {
@@ -112,7 +124,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             try
             {
                 local_chest = animator.GetBoneTransform(HumanBodyBones.Chest).transform;
-                server_chest = local_chest.localRotation;
+                correctBoneChestRot = local_chest.localRotation;
             }
             catch (System.Exception e)
             {
@@ -125,32 +137,93 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
         gameObject.layer = _nonAuthoritativeLayer;
         animator.GetBoneTransform(HumanBodyBones.Hips).transform.parent.gameObject.layer = _nonAuthoritativeLayer;
     }
+    void BuildAnimatorParamsDict()
+    {
+        if (GetComponent<Animator>())
+        {
+            foreach (var param in GetComponent<Animator>().parameters)
+            {
+                if (param.type != AnimatorControllerParameterType.Trigger) //Syncing triggers this way is unreliable, send trigger events via RPC
+                {
+                    animParams.Add(param.name, param.type);
+                }
+                else
+                {
+                    animTriggers.Add(param.name);
+                }
+            }
+        }
+    }
     #endregion
 
     #region Server Sync Logic
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) //this function called by Photon View component
     {
-        if (_syncBones == true)
+        if (stream.IsWriting)   //Authoritative player sending data to server
         {
-            if (stream.IsWriting)   //Authoritative player sending data to server
+            if (_syncBones == true)
             {
-                //Bone Rotations
+                //Send Bone Rotations
                 stream.SendNext(local_head.localRotation);
                 stream.SendNext(local_neck.localRotation);
                 stream.SendNext(local_spine.localRotation);
                 stream.SendNext(local_chest.localRotation);
             }
-            else  //Network player copies receiving data from server
-            {
-                //Bone Rotations
-                server_head = (Quaternion)stream.ReceiveNext();
-                server_neck = (Quaternion)stream.ReceiveNext();
-                server_spine = (Quaternion)stream.ReceiveNext();
-                server_chest = (Quaternion)stream.ReceiveNext();
 
-                //lag = Mathf.Abs((float)(PhotonNetwork.Time - info.timestamp));
+            //Send Player Position and rotation
+            stream.SendNext(transform.position);
+            stream.SendNext(transform.rotation);
+
+            //Send Player Animations
+            foreach (var item in animParams)
+            {
+                switch (item.Value)
+                {
+                    case AnimatorControllerParameterType.Bool:
+                        stream.SendNext(animator.GetBool(item.Key));
+                        break;
+                    case AnimatorControllerParameterType.Float:
+                        stream.SendNext(animator.GetFloat(item.Key));
+                        break;
+                    case AnimatorControllerParameterType.Int:
+                        stream.SendNext(animator.GetInteger(item.Key));
+                        break;
+                }
             }
         }
+        else  //Network player copies receiving data from server
+        {
+            if (_syncBones == true)
+            {
+                //Receive Bone Rotations
+                this.correctBoneHeadRot = (Quaternion)stream.ReceiveNext();
+                this.correctBoneNeckRot = (Quaternion)stream.ReceiveNext();
+                this.correctBoneSpineRot = (Quaternion)stream.ReceiveNext();
+                this.correctBoneChestRot = (Quaternion)stream.ReceiveNext();
+            }
+
+            //Receive Player Position and rotation
+            this.correctPlayerPos = (Vector3)stream.ReceiveNext();
+            this.correctPlayerRot = (Quaternion)stream.ReceiveNext();
+
+            //Receive Player Animations
+            foreach (var item in animParams)
+            {
+                switch (item.Value)
+                {
+                    case AnimatorControllerParameterType.Bool:
+                        animator.SetBool(item.Key,(bool)stream.ReceiveNext());
+                        break;
+                    case AnimatorControllerParameterType.Float:
+                        animator.SetFloat(item.Key, (float)stream.ReceiveNext());
+                        break;
+                    case AnimatorControllerParameterType.Int:
+                        animator.SetInteger(item.Key, (int)stream.ReceiveNext());
+                        break;
+                }
+            }
+        }
+        //lag = Mathf.Abs((float)(PhotonNetwork.Time - info.timestamp));
     }
 
     [PunRPC]
@@ -158,6 +231,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (GetComponent<PhotonView>().IsMine == true)
         {
+            Debug.Log(amount);
             vDamage damage = JsonUtility.FromJson<vDamage>(amount);
             GetComponent<vThirdPersonController>().TakeDamage(damage);
         }
@@ -165,11 +239,65 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     public void ResetTrigger(string name)
     {
-        GetComponent<Animator>().ResetTrigger(name);
+        if (GetComponent<Animator>())
+        {
+            Debug.Log(name);
+            GetComponent<Animator>().ResetTrigger(name);
+        }
+    }
+    [PunRPC]
+    public void SetTrigger(string name)
+    {
+        if (GetComponent<Animator>())
+        {
+            Debug.Log(name);
+            GetComponent<Animator>().SetTrigger(name);
+        }
+    }
+    [PunRPC]
+    public void CrossFadeInFixedTime(string name, float time)
+    {
+        if (GetComponent<Animator>())
+        {
+            Debug.Log(name);
+            GetComponent<Animator>().CrossFadeInFixedTime(name, time);
+        }
     }
     #endregion
 
     #region Local Actions Based on Server Changes
+    void SendTriggers()
+    {
+        foreach(var param in animTriggers)
+        {
+            if (animator.GetBool(param) == true)
+            {
+                GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, param);
+            }
+        }
+    }
+    void Update()
+    {
+        if (photonView.IsMine == false)
+        {
+            float distance = Vector3.Distance(transform.position, this.correctPlayerPos);
+            if (distance < 2f)
+            {
+                transform.position = Vector3.Lerp(transform.position, this.correctPlayerPos, Time.deltaTime * _positionLerpRate);
+                transform.rotation = Quaternion.Lerp(transform.rotation, this.correctPlayerRot, Time.deltaTime * _rotationLerpRate);
+            }
+            else
+            {
+                transform.position = this.correctPlayerPos;
+                transform.rotation = this.correctPlayerRot;
+            }
+            if (_syncBones == true)
+            {
+                SyncBoneRotation();
+            }
+            SendTriggers();
+        }
+    }
     void LateUpdate()
     {
         if (_syncBones == true && GetComponent<PhotonView>().IsMine == false)
@@ -179,11 +307,14 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     }
     void SyncBoneRotation()
     {
-        //Debug.Log(server_head);
-        local_head.localRotation = Quaternion.Lerp(local_head.localRotation, server_head, Time.deltaTime * _boneLerpRate);
-        local_neck.localRotation = Quaternion.Lerp(local_neck.localRotation, server_neck, Time.deltaTime * _boneLerpRate);
-        local_spine.localRotation = Quaternion.Lerp(local_spine.localRotation, server_spine, Time.deltaTime * _boneLerpRate);
-        local_chest.localRotation = Quaternion.Lerp(local_chest.localRotation, server_chest, Time.deltaTime * _boneLerpRate);
+        //local_head.localRotation = this.correctBoneHeadRot;
+        //local_neck.localRotation = this.correctBoneNeckRot;
+        //local_spine.localRotation = this.correctBoneSpineRot;
+        //local_chest.localRotation = this.correctBoneChestRot;
+        local_head.localRotation = Quaternion.Lerp(local_head.localRotation, this.correctBoneHeadRot, Time.deltaTime * _boneLerpRate);
+        local_neck.localRotation = Quaternion.Lerp(local_neck.localRotation, this.correctBoneNeckRot, Time.deltaTime * _boneLerpRate);
+        local_spine.localRotation = Quaternion.Lerp(local_spine.localRotation, this.correctBoneSpineRot, Time.deltaTime * _boneLerpRate);
+        local_chest.localRotation = Quaternion.Lerp(local_chest.localRotation, this.correctBoneChestRot, Time.deltaTime * _boneLerpRate);
     }
     bool notNan(Quaternion value)
     {

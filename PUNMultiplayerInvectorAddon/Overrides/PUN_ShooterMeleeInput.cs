@@ -49,12 +49,22 @@ public class PUN_ShooterMeleeInput : vShooterMeleeInput
     public override void OnRecoil(int recoilID)
     {
         cc.animator.SetInteger("RecoilID", recoilID);
-        GetComponent<Animator>().SetTrigger("TriggerRecoil");
-        GetComponent<Animator>().SetTrigger("ResetState");
+        GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "TriggerRecoil");
+        GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "ResetState");
         GetComponent<PhotonView>().RPC("ResetTrigger", RpcTarget.All, "WeakAttack");
         GetComponent<PhotonView>().RPC("ResetTrigger", RpcTarget.All, "StrongAttack");
     }
-
+    public override void TriggerWeakAttack()
+    {
+        cc.animator.SetInteger("AttackID", meleeManager.GetAttackID());
+        GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "WeakAttack");
+    }
+    public override void TriggerStrongAttack()
+    {
+        cc.animator.SetInteger("AttackID", meleeManager.GetAttackID());
+        GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "StrongAttack");
+    }
+    
     public override void OnReceiveAttack(vDamage damage, vIMeleeFighter attacker)
     {
         //character is blocking
