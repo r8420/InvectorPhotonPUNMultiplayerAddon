@@ -8,7 +8,6 @@ public class PUN_DamageReceiver : vDamageReceiver
 {
     public override void OnReceiveAttack(vDamage damage, vIMeleeFighter attacker)
     {
-        Debug.Log("RECEIVED DAMAGE");
         if (overrideReactionID)
             damage.reaction_id = reactionID;
 
@@ -21,9 +20,13 @@ public class PUN_DamageReceiver : vDamageReceiver
             {
                 ragdoll.gameObject.ApplyDamage(_damage, attacker);
             }
-            else
+            else if (healthController != null)
             {
                 healthController.gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.All, JsonUtility.ToJson(_damage));
+            }
+            else if (gameObject.transform.root.GetComponent<PhotonView>())
+            {
+                gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.All, JsonUtility.ToJson(_damage));
             }
             onReceiveDamage.Invoke(_damage);
         }
@@ -43,9 +46,13 @@ public class PUN_DamageReceiver : vDamageReceiver
                     {
                         healthController.gameObject.ApplyDamage(_damage, attacker);
                     }
-                    else if (healthController.gameObject.transform.root.GetComponent<PhotonView>())
+                    else if (healthController != null)
                     {
                         healthController.gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.All, JsonUtility.ToJson(_damage));
+                    }
+                    else if (gameObject.transform.root.GetComponent<PhotonView>())
+                    {
+                        gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.All, JsonUtility.ToJson(_damage));
                     }
                     onReceiveDamage.Invoke(_damage);
                 }

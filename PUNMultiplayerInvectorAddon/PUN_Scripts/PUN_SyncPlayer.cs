@@ -20,8 +20,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     private Vector3 correctPlayerPos = Vector3.zero;
     private Quaternion correctPlayerRot = Quaternion.identity;
     private Dictionary<string, AnimatorControllerParameterType> animParams = new Dictionary<string, AnimatorControllerParameterType>();
-    private List<string> animTriggers = new List<string>();
-
+    
     PhotonView view;
     Animator animator;
     //private float lag = 0.0f;
@@ -74,6 +73,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
                 this.tag = noneLocalTag;
             }
             SetLayer();
+            SetTags(animator.GetBoneTransform(HumanBodyBones.Hips).transform);
         }
         if (_syncBones == true)
         {
@@ -137,6 +137,18 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
         gameObject.layer = _nonAuthoritativeLayer;
         animator.GetBoneTransform(HumanBodyBones.Hips).transform.parent.gameObject.layer = _nonAuthoritativeLayer;
     }
+    void SetTags(Transform target)
+    {
+        target.tag = noneLocalTag;
+        foreach(Transform child in target)
+        {
+            if (child.tag == "Untagged" || child.tag == "Player")
+            {
+                child.tag = noneLocalTag;
+            }
+            SetTags(child);
+        }
+    }
     void BuildAnimatorParamsDict()
     {
         if (GetComponent<Animator>())
@@ -146,10 +158,6 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
                 if (param.type != AnimatorControllerParameterType.Trigger) //Syncing triggers this way is unreliable, send trigger events via RPC
                 {
                     animParams.Add(param.name, param.type);
-                }
-                else
-                {
-                    animTriggers.Add(param.name);
                 }
             }
         }
@@ -226,12 +234,16 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
         //lag = Mathf.Abs((float)(PhotonNetwork.Time - info.timestamp));
     }
 
+    public void SendTrigger(string name)
+    {
+        GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, name);
+    }
+
     [PunRPC]
     public void ApplyDamage(string amount)
     {
         if (GetComponent<PhotonView>().IsMine == true)
         {
-            Debug.Log(amount);
             vDamage damage = JsonUtility.FromJson<vDamage>(amount);
             GetComponent<vThirdPersonController>().TakeDamage(damage);
         }
@@ -241,7 +253,6 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (GetComponent<Animator>())
         {
-            Debug.Log(name);
             GetComponent<Animator>().ResetTrigger(name);
         }
     }
@@ -250,7 +261,6 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (GetComponent<Animator>())
         {
-            Debug.Log(name);
             GetComponent<Animator>().SetTrigger(name);
         }
     }
@@ -259,23 +269,12 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (GetComponent<Animator>())
         {
-            Debug.Log(name);
             GetComponent<Animator>().CrossFadeInFixedTime(name, time);
         }
     }
     #endregion
 
     #region Local Actions Based on Server Changes
-    void SendTriggers()
-    {
-        foreach(var param in animTriggers)
-        {
-            if (animator.GetBool(param) == true)
-            {
-                GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, param);
-            }
-        }
-    }
     void Update()
     {
         if (photonView.IsMine == false)
@@ -295,7 +294,6 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             {
                 SyncBoneRotation();
             }
-            SendTriggers();
         }
     }
     void LateUpdate()

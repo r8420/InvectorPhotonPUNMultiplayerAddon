@@ -87,7 +87,7 @@ public class SetupNetworking : EditorWindow
         }
         if (_player != null && generated == true)
         {
-            EditorGUILayout.HelpBox("Last manual steps! Do these on the gameobject prefab (or gameobject and save it to the prefab)... \n\n1. Open the \"Photon View\" component and set the \"Observe option\" to \"Reliable Delta Compressed\". \n\n 2. Make sure prefab is assigned to the \"NetworkManager\" \"_playerPrefab\" input.\n\n 3. Any components with custom events will need to be verified. If the component wasn't able to be easily copied it will say \"Missing Component\" on the UnityEvent. Look at the original object and re-add any of the missing components. \n\n 4. When done be sure to apply your changes to the prefab! \n\nNOTE: You can find the prefab in the \"Assets/Resources\" folder", MessageType.Info);
+            EditorGUILayout.HelpBox("Last manual steps! Do these on the gameobject prefab (or gameobject and save it to the prefab)... \n\n 1. Any components with custom events will need to be verified. If the component wasn't able to be easily copied it will say \"Missing Component\" on the UnityEvent. Look at the original object and re-add any of the missing components. \n\n 2. When done be sure to apply your changes to the prefab! \n\nNOTE: You can find the prefab in the \"Assets/Resources\" folder", MessageType.Info);
         }
         GUILayout.EndVertical();
 
@@ -125,8 +125,12 @@ public class SetupNetworking : EditorWindow
         AssignDamageReceivers(prefab);
         MakeAndAssignPrefab(prefab);
     }
+
     void ModifyComponents(GameObject prefab)
     {
+        //Set Syncronization
+        prefab.GetComponent<PhotonView>().Synchronization = ViewSynchronization.ReliableDeltaCompressed;
+
         //Sync Rigidbody
         prefab.GetComponent<PhotonRigidbodyView>().m_SynchronizeVelocity = true;
         prefab.GetComponent<PhotonRigidbodyView>().m_SynchronizeAngularVelocity = true;
@@ -149,7 +153,6 @@ public class SetupNetworking : EditorWindow
         Setup_ThrowObject(prefab);
         Setup_LadderAction(prefab);
         Setup_CameraVerify(prefab);
-
 
         //Destroy Non Multiplayer Compatible Components
         DestroyComponents(prefab);
@@ -243,7 +246,7 @@ public class SetupNetworking : EditorWindow
         }
     }
 
-    #region Component Setups
+    #region Overrides Component Setups
     void Setup_LadderAction(GameObject prefab)
     {
         if (prefab.GetComponent<vLadderAction>() || prefab.GetComponent<PUN_LadderAction>())
@@ -390,6 +393,13 @@ public class SetupNetworking : EditorWindow
     }
     #endregion
 
+    #region Network Helper Components
+    void Setup_NetworkDestroy()
+    {
+
+    }
+    #endregion
+
     #region Destroy Components
     void DestroyComponents(GameObject prefab)
     {
@@ -402,7 +412,7 @@ public class SetupNetworking : EditorWindow
         if (prefab.GetComponent<vLadderAction>()) DestroyImmediate(prefab.GetComponent<vLadderAction>());
     }
     #endregion
-
+    
     #region Copying UnityEvents
     //void RebuildMissingComponents(GameObject prefab, UnityEvent prefabsEvent, UnityEvent originalEvent)
     //{
@@ -534,7 +544,7 @@ public class SetupNetworking : EditorWindow
     //MethodInfo GetFunction(GameObject target, string functionName)
     //{
     //    MethodInfo retVal = null;
-        
+
     //    foreach (var component in target.GetComponents<Component>())
     //    {
     //        foreach (var method in component.GetType().GetMethods())

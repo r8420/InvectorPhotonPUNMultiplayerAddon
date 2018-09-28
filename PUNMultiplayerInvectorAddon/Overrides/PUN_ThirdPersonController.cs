@@ -30,14 +30,18 @@ public class PUN_ThirdPersonController : vThirdPersonController
             {
                 // set the ID of the reaction based on the attack animation state of the attacker - Check the MeleeAttackBehaviour script
                 if (reactionIDHash.isValid) animator.SetInteger(reactionIDHash, damage.reaction_id);
-                if (triggerReactionHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, triggerReactionHash);
-                if (triggerResetStateHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, triggerResetStateHash);
+                //Debug.Log(triggerReactionHash);
+                if (triggerReactionHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "TriggerReaction");
+                //Debug.Log(triggerResetStateHash);
+                if (triggerResetStateHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "ResetState");
             }
             else
             {
                 if (recoilIDHash.isValid) animator.SetInteger(recoilIDHash, damage.recoil_id);
-                if (triggerRecoilHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, triggerRecoilHash);
-                if (triggerResetStateHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, triggerResetStateHash);
+                //triggerRecoilHash
+                if (triggerRecoilHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "TriggerRecoil");
+                //triggerResetStateHash
+                if (triggerResetStateHash.isValid) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "ResetState");
             }
         }
         if (damage.activeRagdoll)

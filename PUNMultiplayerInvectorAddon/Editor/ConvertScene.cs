@@ -5,6 +5,8 @@ using Photon.Pun;
 using System.Collections.Generic;
 using Invector.vCharacterController.AI;
 using Invector.vShooter;
+using Invector.vItemManager;
+using UnityEditor.Events;
 
 public class ConvertScene : EditorWindow
 {
@@ -121,6 +123,15 @@ public class ConvertScene : EditorWindow
             buttonOn.Add(false);
         }
 
+        //This isn't ready yet...
+        //Find vItemCollection
+        //vItemCollection[] collections = FindObjectsOfType<vItemCollection>();
+        //foreach (vItemCollection collection in collections)
+        //{
+        //    found.Add(collection.gameObject);
+        //    buttonOn.Add(false);
+        //}
+
         //Find Rigidbodies
         Rigidbody[] bodies = FindObjectsOfType<Rigidbody>();
         foreach (Rigidbody body in bodies)
@@ -158,6 +169,10 @@ public class ConvertScene : EditorWindow
             {
                 PUN_ConvertRigidbody(obj);
             }
+            //else if (obj.GetComponent<vItemCollection>())
+            //{
+            //    PUN_ConvertItemCollection(obj);
+            //}
         }
     }
     private void PUN_ConvertThrowUI(GameObject obj)
@@ -186,6 +201,8 @@ public class ConvertScene : EditorWindow
         {
             obj.AddComponent<PhotonView>();
         }
+        obj.GetComponent<PhotonView>().Synchronization = ViewSynchronization.UnreliableOnChange;
+
         if (!obj.GetComponent<PhotonRigidbodyView>())
         {
             obj.AddComponent<PhotonRigidbodyView>();
@@ -219,4 +236,23 @@ public class ConvertScene : EditorWindow
 
         modified.Add(obj);
     }
+    //This isn't ready yet.
+    //private void PUN_ConvertItemCollection(GameObject obj)
+    //{
+    //    for (int i=0; i < obj.GetComponent<vItemCollection>().onDoActionWithTarget.GetPersistentEventCount(); i++)
+    //    {
+    //        if (obj.GetComponent<vItemCollection>().onDoActionWithTarget.GetPersistentMethodName(i) == "NetworkDestroy")
+    //        {
+    //            UnityEventTools.RemovePersistentListener(obj.GetComponent<vItemCollection>().onDoActionWithTarget, i);
+    //        }
+    //    }
+    //    UnityEventTools.AddObjectPersistentListener(obj.GetComponent<vItemCollection>().onDoActionWithTarget, FindObjectOfType<PUN_ClientNetworkFunctions>().NetworkDestroy, obj);
+    //    if (!obj.GetComponent<PhotonView>())
+    //    {
+    //        obj.AddComponent<PhotonView>();
+    //    }
+    //    obj.GetComponent<PhotonView>().Synchronization = ViewSynchronization.Off;
+
+    //    modified.Add(obj);
+    //}
 }
