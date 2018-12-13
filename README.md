@@ -1,6 +1,9 @@
 # InvectorPhotonPUNMultiplayerAddon
 This is meant as a addon for the Unity Invector Package to add multiplayer support. 
 
+## Follow On The Invector Forums:
+http://invector.proboards.com/thread/1908/free-deprecated-photon-multiplayer-scripts
+
 ## Pre-Setup Process
 Follow these steps to setup photon to use this package properly.
 
