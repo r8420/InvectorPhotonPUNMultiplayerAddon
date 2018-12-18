@@ -23,6 +23,8 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     
     PhotonView view;
     Animator animator;
+    public vMeleeWeapon rightWeapon;
+    public vMeleeWeapon leftWeapon;
     //private float lag = 0.0f;
     #endregion
 
@@ -52,6 +54,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
 
         if (view.IsMine == true && PhotonNetwork.IsConnected == true)
         {
+            if (GetComponent<PUN_MeleeManager>()) GetComponent<PUN_MeleeManager>().enabled = true;
             if (GetComponent<PUN_MeleeCombatInput>()) GetComponent<PUN_MeleeCombatInput>().enabled = true;
             if (GetComponent<vMeleeManager>()) GetComponent<vMeleeManager>().enabled = true;
             if (GetComponent<PUN_ShooterMeleeInput>()) GetComponent<PUN_ShooterMeleeInput>().enabled = true;
@@ -239,6 +242,30 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
         GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, name);
     }
 
+    [PunRPC]
+    public void OnDestroyWeapon(string weaponName, PUN_ItemManager.EquipSide side)
+    {
+        if (photonView.IsMine == false)
+        {
+            FindObjectOfType<PUN_ItemManager>().DestroyWeapon(gameObject, weaponName, side);
+        }
+    }
+    [PunRPC]
+    public void SetRightWeapon(string weapon)
+    {
+        if (photonView.IsMine == false)
+        {
+            FindObjectOfType<PUN_ItemManager>().createItem(weapon, PUN_ItemManager.EquipSide.Right, gameObject);
+        }
+    }
+    [PunRPC]
+    public void SetLeftWeapon(string weapon)
+    {
+        if (photonView.IsMine == false)
+        {
+            FindObjectOfType<PUN_ItemManager>().createItem(weapon, PUN_ItemManager.EquipSide.Left, gameObject);
+        }
+    }
     [PunRPC]
     public void ApplyDamage(string amount)
     {

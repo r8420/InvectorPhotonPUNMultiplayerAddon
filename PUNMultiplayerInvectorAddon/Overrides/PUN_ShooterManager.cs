@@ -64,4 +64,30 @@ public class PUN_ShooterManager : vShooterManager
         if (GetComponent<Animator>()) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Shoot");
         if (tpCamera != null) tpCamera.RotateCamera(horizontal, up);
     }
+
+    public override void SetLeftWeapon(GameObject weapon)
+    {
+        if (weapon != null)
+        {
+            base.SetLeftWeapon(weapon);
+            gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.AllBuffered, weapon.name, PUN_ItemManager.WeaponType.shooter);
+        }
+    }
+    public override void SetRightWeapon(GameObject weapon)
+    {
+        if (weapon != null)
+        {
+            base.SetRightWeapon(weapon);
+            gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.AllBuffered, weapon.name);
+        }
+    }
+
+    public override void OnDestroyWeapon(GameObject otherGameObject)
+    {
+        base.OnDestroyWeapon(otherGameObject);
+        if (otherGameObject != null)
+        {            
+            GetComponent<PhotonView>().RPC("OnDestroyWeapon", RpcTarget.All, otherGameObject.name, PUN_ItemManager.EquipSide.Right);
+        }
+    }
 }

@@ -42,8 +42,6 @@ public class SetupNetworking : EditorWindow
     Vector2 max_rect = new Vector2(400, 500);
     Editor playerPreview;
     bool generated = false;
-    float timer = 0.0f;
-    GameObject _prefab = null;
     [MenuItem("Invector/Multiplayer/02. Make Player Multiplayer Compatible")]
     private static void M_MakePlayerMultiplayer()
     {
@@ -120,7 +118,6 @@ public class SetupNetworking : EditorWindow
         {
             prefab.AddComponent<PUN_SyncPlayer>();
         }
-        _prefab = prefab;
         ModifyComponents(prefab);
         AssignDamageReceivers(prefab);
         MakeAndAssignPrefab(prefab);
@@ -160,7 +157,7 @@ public class SetupNetworking : EditorWindow
         EnableComponents(prefab);
 
         //Enable Ragdoll colliders to shooter weapons can hit you
-        prefab.GetComponent<vRagdoll>().disableColliders = false;
+        if (prefab.GetComponent<vRagdoll>()) prefab.GetComponent<vRagdoll>().disableColliders = false;
     }
     void MakeAndAssignPrefab(GameObject prefab)
     {
