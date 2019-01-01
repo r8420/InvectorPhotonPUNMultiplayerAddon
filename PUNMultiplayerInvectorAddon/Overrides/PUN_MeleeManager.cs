@@ -12,7 +12,10 @@ public class PUN_MeleeManager : vMeleeManager
         if (weaponObject)
         {
             base.SetRightWeapon(weaponObject);
-            gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.AllBuffered, weaponObject.name);
+            if (GetComponent<PhotonView>().IsMine == true)
+            {
+                gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.OthersBuffered, weaponObject.name);
+            }
         }
     }
     public override void SetRightWeapon(vMeleeWeapon weapon)
@@ -20,7 +23,10 @@ public class PUN_MeleeManager : vMeleeManager
         if (weapon)
         {
             base.SetRightWeapon(weapon);
-            gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.AllBuffered, weapon.gameObject.name);
+            if (GetComponent<PhotonView>().IsMine == true)
+            {
+                gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.OthersBuffered, weapon.gameObject.name);
+            }
         }
     }
 
@@ -29,15 +35,22 @@ public class PUN_MeleeManager : vMeleeManager
         if (weapon)
         {
             base.SetLeftWeapon(weapon);
-            gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.AllBuffered, weapon.gameObject.name);
+            if (GetComponent<PhotonView>().IsMine == true)
+            {
+                gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weapon.gameObject.name);
+            }
         }
     }
+
     public override void SetLeftWeapon(GameObject weaponObject)
     {
         if (weaponObject)
         {
             base.SetLeftWeapon(weaponObject);
-            gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.AllBuffered, weaponObject);
+            if (GetComponent<PhotonView>().IsMine == true)
+            {
+                gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weaponObject);
+            }
         }
     }
 }

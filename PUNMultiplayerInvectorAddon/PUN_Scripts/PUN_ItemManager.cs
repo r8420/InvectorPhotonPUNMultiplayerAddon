@@ -47,11 +47,12 @@ public class PUN_ItemManager : MonoBehaviour {
     public void DestroyWeapon(GameObject owner, string weaponName, EquipSide side)
     {
         List<Transform> handlers = GetHandlers(owner);
-        Transform weapon = null;
+        List<Transform> weapons = new List<Transform>();
         foreach (Transform handler in handlers)
         {
-            weapon = FindWithName(handler, weaponName);
-            if (weapon != null)
+            weapons.Clear();
+            weapons = FindAllWithName(handler, weaponName, weapons);
+            foreach(Transform weapon in weapons)
             {
                 Destroy(weapon.gameObject);
             }
@@ -114,10 +115,13 @@ public class PUN_ItemManager : MonoBehaviour {
         {
             retVal = root;
         }
-        retVal = root.Find(Name);
-        if (retVal == null)
+        foreach (Transform child in root)
         {
-            foreach (Transform child in root)
+            if (child.gameObject.name == Name)
+            {
+                retVal = child;
+            }
+            if (retVal == null)
             {
                 retVal = FindWithName(child, Name);
                 if (retVal != null)
@@ -125,6 +129,24 @@ public class PUN_ItemManager : MonoBehaviour {
                     break;
                 }
             }
+        }
+
+        return retVal;
+    }
+
+    List<Transform> FindAllWithName(Transform root, string Name, List<Transform> retVal)
+    {
+        if (root.name == Name)
+        {
+            retVal.Add(root);
+        }
+        foreach (Transform child in root)
+        {
+            if (child.gameObject.name == Name)
+            {
+                retVal.Add(child);
+            }
+            retVal = FindAllWithName(child, Name, retVal);
         }
 
         return retVal;

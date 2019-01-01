@@ -134,7 +134,6 @@ public class PUN_NetworkManager : MonoBehaviourPunCallbacks
     {
         _connecting = false;
         _connectStatus = "Disconnected: " + cause;
-        PhotonNetwork.DestroyPlayerObjects(_playerPrefab.GetComponent<PhotonView>().ViewID, _playerPrefab);
         base.OnDisconnected(cause);
     }
 

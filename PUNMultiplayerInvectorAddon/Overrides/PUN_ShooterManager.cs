@@ -27,8 +27,11 @@ public class PUN_ShooterManager : vShooterManager
                 WeaponAmmo(weapon).Use(needAmmo);
             if (GetComponent<Animator>() && !ignoreAnim)
             {
-                GetComponent<Animator>().SetInteger("ReloadID", GetReloadID());
-                GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Reload");
+                if (GetComponent<PhotonView>().IsMine == true)
+                {
+                    GetComponent<Animator>().SetInteger("ReloadID", GetReloadID());
+                    GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Reload");
+                }
             }
             if (!ignoreAnim)
                 weapon.ReloadEffect();
@@ -47,8 +50,11 @@ public class PUN_ShooterManager : vShooterManager
                 if (GetComponent<Animator>() && !ignoreAnim)
                 {
                     primaryWeaponAnim = true;
-                    GetComponent<Animator>().SetInteger("ReloadID", weapon.secundaryWeapon.reloadID);
-                    GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Reload");
+                    if (GetComponent<PhotonView>().IsMine == true)
+                    {
+                        GetComponent<Animator>().SetInteger("ReloadID", weapon.secundaryWeapon.reloadID);
+                        GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Reload");
+                    }
                 }
                 if (!ignoreAnim)
                     weapon.secundaryWeapon.ReloadEffect();
@@ -61,7 +67,10 @@ public class PUN_ShooterManager : vShooterManager
     protected override IEnumerator Recoil(float horizontal, float up)
     {
         yield return new WaitForSeconds(0.02f);
-        if (GetComponent<Animator>()) GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Shoot");
+        if (GetComponent<Animator>() && GetComponent<PhotonView>().IsMine == true)
+        {
+            GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Shoot");
+        }
         if (tpCamera != null) tpCamera.RotateCamera(horizontal, up);
     }
 
@@ -70,7 +79,10 @@ public class PUN_ShooterManager : vShooterManager
         if (weapon != null)
         {
             base.SetLeftWeapon(weapon);
-            gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.AllBuffered, weapon.name, PUN_ItemManager.WeaponType.shooter);
+            if (gameObject.GetComponent<PhotonView>().IsMine == true)
+            {
+                gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weapon.name, PUN_ItemManager.WeaponType.shooter);
+            }
         }
     }
     public override void SetRightWeapon(GameObject weapon)
@@ -78,7 +90,10 @@ public class PUN_ShooterManager : vShooterManager
         if (weapon != null)
         {
             base.SetRightWeapon(weapon);
-            gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.AllBuffered, weapon.name);
+            if (gameObject.GetComponent<PhotonView>().IsMine == true)
+            {
+                gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.OthersBuffered, weapon.name);
+            }
         }
     }
 
@@ -86,8 +101,11 @@ public class PUN_ShooterManager : vShooterManager
     {
         base.OnDestroyWeapon(otherGameObject);
         if (otherGameObject != null)
-        {            
-            GetComponent<PhotonView>().RPC("OnDestroyWeapon", RpcTarget.All, otherGameObject.name, PUN_ItemManager.EquipSide.Right);
+        {
+            if (gameObject.GetComponent<PhotonView>().IsMine == true)
+            {
+                GetComponent<PhotonView>().RPC("OnDestroyWeapon", RpcTarget.OthersBuffered, otherGameObject.name, PUN_ItemManager.EquipSide.Right);
+            }
         }
     }
 }

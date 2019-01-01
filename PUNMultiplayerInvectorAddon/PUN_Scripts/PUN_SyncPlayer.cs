@@ -243,12 +243,33 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     }
 
     [PunRPC]
+    public void WeaponHolderSetActiveWeapon(bool value, int id)
+    {
+        foreach (vWeaponHolder holder in GetComponentsInChildren<vWeaponHolder>())
+        {
+            if (holder.itemID == id)
+            {
+                holder.SetActiveWeapon(value);
+                break;
+            }
+        }
+    }
+    [PunRPC]
+    public void WeaponHolderSetActiveHolder(bool value, int id)
+    {
+        foreach(vWeaponHolder holder in GetComponentsInChildren<vWeaponHolder>())
+        {
+            if (holder.itemID == id)
+            {
+                holder.SetActiveHolder(value);
+                break;
+            }
+        }
+    }
+    [PunRPC]
     public void OnDestroyWeapon(string weaponName, PUN_ItemManager.EquipSide side)
     {
-        if (photonView.IsMine == false)
-        {
-            FindObjectOfType<PUN_ItemManager>().DestroyWeapon(gameObject, weaponName, side);
-        }
+        FindObjectOfType<PUN_ItemManager>().DestroyWeapon(gameObject, weaponName, side);
     }
     [PunRPC]
     public void SetRightWeapon(string weapon)

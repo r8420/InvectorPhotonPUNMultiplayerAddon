@@ -26,6 +26,7 @@ public class SetupNetworking : EditorWindow
             _networkManager.AddComponent<PUN_NetworkManager>();
             _networkManager.AddComponent<PUN_LobbyUI>();
             _networkManager.GetComponent<PUN_NetworkManager>()._spawnPoint = _networkManager.transform;
+            _networkManager.AddComponent<PUN_ItemManager>();
         }
         else
         {
@@ -85,7 +86,7 @@ public class SetupNetworking : EditorWindow
         }
         if (_player != null && generated == true)
         {
-            EditorGUILayout.HelpBox("Last manual steps! Do these on the gameobject prefab (or gameobject and save it to the prefab)... \n\n 1. Any components with custom events will need to be verified. If the component wasn't able to be easily copied it will say \"Missing Component\" on the UnityEvent. Look at the original object and re-add any of the missing components. \n\n 2. When done be sure to apply your changes to the prefab! \n\nNOTE: You can find the prefab in the \"Assets/Resources\" folder", MessageType.Info);
+            EditorGUILayout.HelpBox("Last manual steps! \n\n 1. Any components with custom events will need to be verified. If the event wasn't able to be easily copied it will say \"Missing Component\" on the UnityEvent or not be present. Look at the original object and re-add any of the missing events. \n\n 2. If you make any manual changes be sure to apply your changes to the prefab! \n\nNOTE: You can find the prefab in the \"Assets/Resources\" folder\n\n 3. Find the \"Network Manager\" gameobject and add the appropriate \"V Item List Data\" object to the \"PUN_ItemManager\" component that you're using. This will sync weapons across the network.", MessageType.Info);
         }
         GUILayout.EndVertical();
 
@@ -150,6 +151,9 @@ public class SetupNetworking : EditorWindow
         Setup_ThrowObject(prefab);
         Setup_LadderAction(prefab);
         Setup_CameraVerify(prefab);
+        Setup_WeaponHolders(prefab);
+        Setup_ShooterManager(prefab);
+        Setup_MeleeManager(prefab);
 
         //Destroy Non Multiplayer Compatible Components
         DestroyComponents(prefab);
@@ -377,6 +381,180 @@ public class SetupNetworking : EditorWindow
                 prefab.GetComponent<PUN_GenericAction>().OnStartAction = prefab.GetComponent<vGenericAction>().OnStartAction;
                 prefab.GetComponent<PUN_GenericAction>().OnEndAction = prefab.GetComponent<vGenericAction>().OnEndAction;
             }
+        }
+    }
+    void Setup_WeaponHolders(GameObject prefab)
+    {
+        vWeaponHolder[] holders = prefab.GetComponentsInChildren<vWeaponHolder>();
+        List<vWeaponHolder> PUN_holders = new List<vWeaponHolder>();
+        foreach (vWeaponHolder holder in holders)
+        {
+            int itemID = holder.itemID;
+            string equipName = holder.equipPointName;
+            GameObject holderObj = holder.holderObject;
+            GameObject weaponObj = holder.weaponObject;
+            GameObject holderTransform = holder.gameObject;
+            DestroyImmediate(holder);
+
+            holderTransform.AddComponent<PUN_WeaponHolder>();
+            holderTransform.GetComponent<PUN_WeaponHolder>().itemID = itemID;
+            holderTransform.GetComponent<PUN_WeaponHolder>().equipPointName = equipName;
+            holderTransform.GetComponent<PUN_WeaponHolder>().holderObject = holderObj;
+            holderTransform.GetComponent<PUN_WeaponHolder>().weaponObject = weaponObj;
+
+            PUN_holders.Add(holderTransform.gameObject.GetComponent<PUN_WeaponHolder>());
+        }
+        if (prefab.GetComponent<vWeaponHolderManager>())
+        {
+            prefab.GetComponent<vWeaponHolderManager>().holders = PUN_holders.ToArray();
+        }
+    }
+    void Setup_ShooterManager(GameObject prefab)
+    {
+        if (prefab.GetComponent<vShooterManager>())
+        {
+            //Damage Layers
+            LayerMask damageLayer = prefab.GetComponent<vShooterManager>().damageLayer;
+            vTagMask ignoreTags = prefab.GetComponent<vShooterManager>().ignoreTags;
+            LayerMask blockAimLayer = prefab.GetComponent<vShooterManager>().blockAimLayer;
+            float blockAimOffsetX = prefab.GetComponent<vShooterManager>().blockAimOffsetX;
+            float blockAimOffsetY = prefab.GetComponent<vShooterManager>().blockAimOffsetY;
+
+            //Aim
+            float minDistanceToAim = prefab.GetComponent<vShooterManager>().minDistanceToAim;
+            float checkAimRadius = prefab.GetComponent<vShooterManager>().checkAimRadius;
+            bool alwaysAiming = prefab.GetComponent<vShooterManager>().alwaysAiming;
+
+            //IK
+            float smoothArmIKRot = prefab.GetComponent<vShooterManager>().smoothArmIKRotation;
+            float maxAimAngle = prefab.GetComponent<vShooterManager>().maxAimAngle;
+            bool raycastAimTarget = prefab.GetComponent<vShooterManager>().raycastAimTarget;
+            bool applyRecoilToCamera = prefab.GetComponent<vShooterManager>().applyRecoilToCamera;
+            bool useLeftIK = prefab.GetComponent<vShooterManager>().useLeftIK;
+            bool useRightIK = prefab.GetComponent<vShooterManager>().useRightIK;
+            Vector3 ikRotOffsetR = prefab.GetComponent<vShooterManager>().ikRotationOffsetR;
+            Vector3 ikPosOffsetR = prefab.GetComponent<vShooterManager>().ikPositionOffsetR;
+            Vector3 ikRotOffsetL = prefab.GetComponent<vShooterManager>().ikRotationOffsetL;
+            Vector3 ikPosOffsetL = prefab.GetComponent<vShooterManager>().ikPositionOffsetL;
+
+            //Ammo UI
+            bool useAmmoDisplay = prefab.GetComponent<vShooterManager>().useAmmoDisplay;
+            int leftWeaponAmmoDisplayID = prefab.GetComponent<vShooterManager>().leftWeaponAmmoDisplayID;
+            int rightWeaponAmmoDIsplayID = prefab.GetComponent<vShooterManager>().rightWeaponAmmoDisplayID;
+
+            //LockOn
+            bool useLockOn = prefab.GetComponent<vShooterManager>().useLockOn;
+            bool useLockOnMeleeOnly = prefab.GetComponent<vShooterManager>().useLockOnMeleeOnly;
+
+            //HipFire
+            bool hipfireShot = prefab.GetComponent<vShooterManager>().hipfireShot;
+            float hipefireDispersion = prefab.GetComponent<vShooterManager>().hipfireDispersion;
+
+            //Camera Sway
+            float cameraMaxSway = prefab.GetComponent<vShooterManager>().cameraMaxSwayAmount;
+            float cameraSwaySpeed = prefab.GetComponent<vShooterManager>().cameraSwaySpeed;
+
+            //Weapons
+            vShooterWeapon RWeapon = prefab.GetComponent<vShooterManager>().rWeapon;
+            vShooterWeapon LWeapon = prefab.GetComponent<vShooterManager>().lWeapon;
+
+
+            /// -------- SETUP THE SHOOTER MANAGER FROM PREVIOUS SETTINGS ------------- //
+            DestroyImmediate(prefab.GetComponent<vShooterManager>());
+
+            prefab.AddComponent<PUN_ShooterManager>();
+            //Damage Layers
+            prefab.GetComponent<PUN_ShooterManager>().damageLayer = damageLayer;
+            prefab.GetComponent<PUN_ShooterManager>().ignoreTags = ignoreTags;
+            prefab.GetComponent<PUN_ShooterManager>().blockAimLayer = blockAimLayer;
+            prefab.GetComponent<PUN_ShooterManager>().blockAimOffsetX = blockAimOffsetX;
+            prefab.GetComponent<PUN_ShooterManager>().blockAimOffsetY = blockAimOffsetY;
+
+            //Aim
+            prefab.GetComponent<PUN_ShooterManager>().minDistanceToAim = minDistanceToAim;
+            prefab.GetComponent<PUN_ShooterManager>().checkAimRadius = checkAimRadius;
+            prefab.GetComponent<PUN_ShooterManager>().alwaysAiming = alwaysAiming;
+
+            //IK
+            prefab.GetComponent<PUN_ShooterManager>().smoothArmIKRotation = smoothArmIKRot;
+            prefab.GetComponent<PUN_ShooterManager>().maxAimAngle = maxAimAngle;
+            prefab.GetComponent<PUN_ShooterManager>().raycastAimTarget = raycastAimTarget;
+            prefab.GetComponent<PUN_ShooterManager>().applyRecoilToCamera = applyRecoilToCamera;
+            prefab.GetComponent<PUN_ShooterManager>().useLeftIK = useLeftIK;
+            prefab.GetComponent<PUN_ShooterManager>().useRightIK = useRightIK;
+            prefab.GetComponent<PUN_ShooterManager>().ikRotationOffsetR = ikRotOffsetR;
+            prefab.GetComponent<PUN_ShooterManager>().ikPositionOffsetR = ikPosOffsetR;
+            prefab.GetComponent<PUN_ShooterManager>().ikRotationOffsetL = ikRotOffsetL;
+            prefab.GetComponent<PUN_ShooterManager>().ikPositionOffsetL = ikPosOffsetL;
+
+            //Ammo UI
+            prefab.GetComponent<PUN_ShooterManager>().useAmmoDisplay = useAmmoDisplay;
+            prefab.GetComponent<PUN_ShooterManager>().leftWeaponAmmoDisplayID = leftWeaponAmmoDisplayID;
+            prefab.GetComponent<PUN_ShooterManager>().rightWeaponAmmoDisplayID = rightWeaponAmmoDIsplayID;
+
+            //LockOn
+            prefab.GetComponent<PUN_ShooterManager>().useLockOn = useLockOn;
+            prefab.GetComponent<PUN_ShooterManager>().useLockOnMeleeOnly = useLockOnMeleeOnly;
+
+            //HipFire
+            prefab.GetComponent<PUN_ShooterManager>().hipfireShot = hipfireShot;
+            prefab.GetComponent<PUN_ShooterManager>().hipfireDispersion = hipefireDispersion;
+
+            //Camera Sway
+            prefab.GetComponent<PUN_ShooterManager>().cameraMaxSwayAmount = cameraMaxSway;
+            prefab.GetComponent<PUN_ShooterManager>().cameraSwaySpeed = cameraSwaySpeed;
+
+            //Weapons
+            prefab.GetComponent<PUN_ShooterManager>().rWeapon = RWeapon;
+            prefab.GetComponent<PUN_ShooterManager>().lWeapon = LWeapon;
+            // ------------------------------------------------------------------------- //
+        }
+    }
+    void Setup_MeleeManager(GameObject prefab)
+    {
+        if (prefab.GetComponent<vMeleeManager>())
+        {
+            //Default Info
+            vDamage defaultDamage = prefab.GetComponent<vMeleeManager>().defaultDamage;
+            float defaultAttackDistance = prefab.GetComponent<vMeleeManager>().defaultAttackDistance;
+            float defaultStaminaCost = prefab.GetComponent<vMeleeManager>().defaultStaminaCost;
+            float defaultStaminaRecovery = prefab.GetComponent<vMeleeManager>().defaultStaminaRecoveryDelay;
+            int defaultDefenseRate = prefab.GetComponent<vMeleeManager>().defaultDefenseRate;
+            float defaultDefenseRange = prefab.GetComponent<vMeleeManager>().defaultDefenseRange;
+
+            //Events
+            vOnHitEvent OnDamageHit = prefab.GetComponent<vMeleeManager>().onDamageHit;
+            vOnHitEvent OnRecoilHit = prefab.GetComponent<vMeleeManager>().onRecoilHit;
+
+            //Hit Properties
+            HitProperties hitProperties = prefab.GetComponent<vMeleeManager>().hitProperties;
+
+            //Weapons
+            vMeleeWeapon leftWeapon = prefab.GetComponent<vMeleeManager>().leftWeapon;
+            vMeleeWeapon rightWeapon = prefab.GetComponent<vMeleeManager>().rightWeapon;
+
+            // ---------- SETUP PUN_MELEE MANAGER ------------- //
+            DestroyImmediate(prefab.GetComponent<vMeleeManager>());
+            prefab.AddComponent<PUN_MeleeManager>();
+            //Default Info
+            prefab.GetComponent<PUN_MeleeManager>().defaultDamage = defaultDamage;
+            prefab.GetComponent<PUN_MeleeManager>().defaultAttackDistance = defaultAttackDistance;
+            prefab.GetComponent<PUN_MeleeManager>().defaultStaminaCost = defaultStaminaCost;
+            prefab.GetComponent<PUN_MeleeManager>().defaultStaminaRecoveryDelay = defaultStaminaRecovery;
+            prefab.GetComponent<PUN_MeleeManager>().defaultDefenseRate = defaultDefenseRate;
+            prefab.GetComponent<PUN_MeleeManager>().defaultDefenseRange = defaultDefenseRange;
+
+            //Events
+            prefab.GetComponent<PUN_MeleeManager>().onDamageHit = OnDamageHit;
+            prefab.GetComponent<PUN_MeleeManager>().onRecoilHit = OnRecoilHit;
+
+            //Hit Properties
+            prefab.GetComponent<PUN_MeleeManager>().hitProperties = hitProperties;
+
+            //Weapons
+            leftWeapon = prefab.GetComponent<PUN_MeleeManager>().leftWeapon = leftWeapon;
+            rightWeapon = prefab.GetComponent<PUN_MeleeManager>().rightWeapon = rightWeapon;
+            // ------------------------------------------------ //
         }
     }
     void EnableComponents(GameObject prefab)
