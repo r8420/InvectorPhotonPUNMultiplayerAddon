@@ -9,8 +9,6 @@ using Invector;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(PhotonView))]
-//[RequireComponent(typeof(PhotonTransformView))]
-//[RequireComponent(typeof(PhotonAnimatorView))]
 [RequireComponent(typeof(PhotonRigidbodyView))]
 public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -20,19 +18,22 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     private Vector3 correctPlayerPos = Vector3.zero;
     private Quaternion correctPlayerRot = Quaternion.identity;
     private Dictionary<string, AnimatorControllerParameterType> animParams = new Dictionary<string, AnimatorControllerParameterType>();
-    
+    private int currentBoneRate = 0;
+
     PhotonView view;
     Animator animator;
-    public vMeleeWeapon rightWeapon;
-    public vMeleeWeapon leftWeapon;
     //private float lag = 0.0f;
     #endregion
 
     #region Modifiables
     [Tooltip("This will sync the bone positions. Makes it so players on the network can see where this player is looking.")]
-    [SerializeField] private bool _syncBones = false;
+    [SerializeField] private bool _syncBones = true;
+    [Tooltip("How fast to send new bone updates. The lower numbers = faster it will send. (0 = fastest possible). Higher numbers = slower but less network traffic.")]
+    [SerializeField] private int _syncBonesRate = 5;
     [Tooltip("How fast to move bones of network player version when it receives an update from the server.")]
-    [SerializeField] private float _boneLerpRate = 5.0f;
+    [SerializeField] private float _boneLerpRate = 90.0f;
+    [Tooltip("This will sync the bone positions. Makes it so players on the network can see where this player is looking.")]
+    [SerializeField] private bool _syncAnimations = true;
     [Tooltip("How fast to move to new position when the networked player receives and update from the server.")]
     [SerializeField] private float _positionLerpRate = 5.0f;
     [Tooltip("How fast to move to new rotation when the networked player receives and update from the server.")]
@@ -172,65 +173,53 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (stream.IsWriting)   //Authoritative player sending data to server
         {
-            if (_syncBones == true)
-            {
-                //Send Bone Rotations
-                stream.SendNext(local_head.localRotation);
-                stream.SendNext(local_neck.localRotation);
-                stream.SendNext(local_spine.localRotation);
-                stream.SendNext(local_chest.localRotation);
-            }
-
             //Send Player Position and rotation
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
 
-            //Send Player Animations
-            foreach (var item in animParams)
+            if (_syncAnimations == true)
             {
-                switch (item.Value)
+                //Send Player Animations
+                foreach (var item in animParams)
                 {
-                    case AnimatorControllerParameterType.Bool:
-                        stream.SendNext(animator.GetBool(item.Key));
-                        break;
-                    case AnimatorControllerParameterType.Float:
-                        stream.SendNext(animator.GetFloat(item.Key));
-                        break;
-                    case AnimatorControllerParameterType.Int:
-                        stream.SendNext(animator.GetInteger(item.Key));
-                        break;
+                    switch (item.Value)
+                    {
+                        case AnimatorControllerParameterType.Bool:
+                            stream.SendNext(animator.GetBool(item.Key));
+                            break;
+                        case AnimatorControllerParameterType.Float:
+                            stream.SendNext(animator.GetFloat(item.Key));
+                            break;
+                        case AnimatorControllerParameterType.Int:
+                            stream.SendNext(animator.GetInteger(item.Key));
+                            break;
+                    }
                 }
             }
         }
         else  //Network player copies receiving data from server
         {
-            if (_syncBones == true)
-            {
-                //Receive Bone Rotations
-                this.correctBoneHeadRot = (Quaternion)stream.ReceiveNext();
-                this.correctBoneNeckRot = (Quaternion)stream.ReceiveNext();
-                this.correctBoneSpineRot = (Quaternion)stream.ReceiveNext();
-                this.correctBoneChestRot = (Quaternion)stream.ReceiveNext();
-            }
-
             //Receive Player Position and rotation
             this.correctPlayerPos = (Vector3)stream.ReceiveNext();
             this.correctPlayerRot = (Quaternion)stream.ReceiveNext();
 
-            //Receive Player Animations
-            foreach (var item in animParams)
+            if (_syncAnimations == true)
             {
-                switch (item.Value)
+                //Receive Player Animations
+                foreach (var item in animParams)
                 {
-                    case AnimatorControllerParameterType.Bool:
-                        animator.SetBool(item.Key,(bool)stream.ReceiveNext());
-                        break;
-                    case AnimatorControllerParameterType.Float:
-                        animator.SetFloat(item.Key, (float)stream.ReceiveNext());
-                        break;
-                    case AnimatorControllerParameterType.Int:
-                        animator.SetInteger(item.Key, (int)stream.ReceiveNext());
-                        break;
+                    switch (item.Value)
+                    {
+                        case AnimatorControllerParameterType.Bool:
+                            animator.SetBool(item.Key, (bool)stream.ReceiveNext());
+                            break;
+                        case AnimatorControllerParameterType.Float:
+                            animator.SetFloat(item.Key, (float)stream.ReceiveNext());
+                            break;
+                        case AnimatorControllerParameterType.Int:
+                            animator.SetInteger(item.Key, (int)stream.ReceiveNext());
+                            break;
+                    }
                 }
             }
         }
@@ -242,6 +231,11 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
         GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, name);
     }
 
+    [PunRPC]
+    public void AnimMatchTarget(Vector3 matchPosition, Quaternion matchRotation, AvatarTarget target, MatchTargetWeightMask weightMask, float normalisedStartTime, float normalisedEndTime)
+    {
+        animator.MatchTarget(matchPosition, matchRotation, target, weightMask, normalisedStartTime, normalisedEndTime);
+    }
     [PunRPC]
     public void WeaponHolderSetActiveWeapon(bool value, int id)
     {
@@ -320,12 +314,20 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             GetComponent<Animator>().CrossFadeInFixedTime(name, time);
         }
     }
+    [PunRPC]
+    public void SyncRotations(Quaternion head, Quaternion neck, Quaternion spine, Quaternion chest)
+    {
+        correctBoneHeadRot = head;
+        correctBoneNeckRot = neck;
+        correctBoneSpineRot = spine;
+        correctBoneChestRot = chest;
+    }
     #endregion
 
     #region Local Actions Based on Server Changes
     void Update()
     {
-        if (photonView.IsMine == false)
+        if (GetComponent<PhotonView>().IsMine == false)
         {
             float distance = Vector3.Distance(transform.position, this.correctPlayerPos);
             if (distance < 2f)
@@ -338,33 +340,51 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
                 transform.position = this.correctPlayerPos;
                 transform.rotation = this.correctPlayerRot;
             }
-            if (_syncBones == true)
-            {
-                SyncBoneRotation();
-            }
         }
     }
     void LateUpdate()
     {
-        if (_syncBones == true && GetComponent<PhotonView>().IsMine == false)
+        SyncBoneRotation();
+    }
+    void FixedUpdate()
+    {
+        if (_syncBones == true && GetComponent<PhotonView>().IsMine == true)
         {
-            SyncBoneRotation();
+            if (currentBoneRate == _syncBonesRate)
+            {
+                currentBoneRate = 0;
+                photonView.RPC("SyncRotations", RpcTarget.Others, local_head.localRotation, local_neck.localRotation, local_spine.localRotation, local_chest.localRotation);
+            }
+            else
+            {
+                currentBoneRate += 1;
+            }
         }
     }
     void SyncBoneRotation()
     {
-        //local_head.localRotation = this.correctBoneHeadRot;
-        //local_neck.localRotation = this.correctBoneNeckRot;
-        //local_spine.localRotation = this.correctBoneSpineRot;
-        //local_chest.localRotation = this.correctBoneChestRot;
-        local_head.localRotation = Quaternion.Lerp(local_head.localRotation, this.correctBoneHeadRot, Time.deltaTime * _boneLerpRate);
-        local_neck.localRotation = Quaternion.Lerp(local_neck.localRotation, this.correctBoneNeckRot, Time.deltaTime * _boneLerpRate);
-        local_spine.localRotation = Quaternion.Lerp(local_spine.localRotation, this.correctBoneSpineRot, Time.deltaTime * _boneLerpRate);
-        local_chest.localRotation = Quaternion.Lerp(local_chest.localRotation, this.correctBoneChestRot, Time.deltaTime * _boneLerpRate);
+        if (_syncBones == true && GetComponent<PhotonView>().IsMine == false)
+        {
+            local_head.localRotation = Quaternion.Lerp(local_head.localRotation, correctBoneHeadRot, Time.deltaTime * _boneLerpRate);
+            local_neck.localRotation = Quaternion.Lerp(local_neck.localRotation, correctBoneNeckRot, Time.deltaTime * _boneLerpRate);
+            local_spine.localRotation = Quaternion.Lerp(local_spine.localRotation, correctBoneSpineRot, Time.deltaTime * _boneLerpRate);
+            local_chest.localRotation = Quaternion.Lerp(local_chest.localRotation, correctBoneChestRot, Time.deltaTime * _boneLerpRate);
+        }
     }
     bool notNan(Quaternion value)
     {
         if (!float.IsNaN(value.x) && !float.IsNaN(value.y) && !float.IsNaN(value.z) && !float.IsNaN(value.w))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    bool isQuaternionIdentity(Quaternion value)
+    {
+        if (value.ToString() == "(0.0, 0.0, 0.0, 1.0)")
         {
             return true;
         }

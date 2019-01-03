@@ -59,9 +59,9 @@ public class PUN_MeleeCombatInput : vMeleeCombatInput
             damage.hitReaction = !isBlocking;
             cc.TakeDamage(damage);
         }
-        else if (GetComponent<PhotonView>())
+        else if (GetComponent<PhotonView>().IsMine == false)
         {
-            GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.All, JsonUtility.ToJson(damage));
+            GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(damage));
         }
     }
 

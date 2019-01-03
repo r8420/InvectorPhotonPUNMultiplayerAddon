@@ -552,8 +552,8 @@ public class SetupNetworking : EditorWindow
             prefab.GetComponent<PUN_MeleeManager>().hitProperties = hitProperties;
 
             //Weapons
-            leftWeapon = prefab.GetComponent<PUN_MeleeManager>().leftWeapon = leftWeapon;
-            rightWeapon = prefab.GetComponent<PUN_MeleeManager>().rightWeapon = rightWeapon;
+            prefab.GetComponent<PUN_MeleeManager>().leftWeapon = leftWeapon;
+            prefab.GetComponent<PUN_MeleeManager>().rightWeapon = rightWeapon;
             // ------------------------------------------------ //
         }
     }

@@ -158,7 +158,7 @@ public class ModifyScripts : EditorWindow
             adding[0].type = M_FileAddtionType.NewLine;
             adding[1] = new M_Additions();
             adding[1].target = "else receiver.ApplyDamage(damage);";
-            adding[1].add = "if (receiver.transform.root.gameObject.GetComponent<PhotonView>() && receiver.transform.root.gameObject.GetComponent<PhotonView>().IsMine == false) { receiver.transform.root.gameObject.GetComponent<PhotonView>().RPC(\"ApplyDamage\", RpcTarget.All, JsonUtility.ToJson(damage)); }";
+            adding[1].add = "if (receiver.transform.root.gameObject.GetComponent<PhotonView>() && receiver.transform.root.gameObject.GetComponent<PhotonView>().IsMine == false) { receiver.transform.root.gameObject.GetComponent<PhotonView>().RPC(\"ApplyDamage\", RpcTarget.Others, JsonUtility.ToJson(damage)); }";
             adding[1].nextline = "}";
             adding[1].type = M_FileAddtionType.InsertLine;
 

@@ -49,6 +49,7 @@ public class PUN_ShooterMeleeInput : vShooterMeleeInput
     public override void OnRecoil(int recoilID)
     {
         cc.animator.SetInteger("RecoilID", recoilID);
+        if (GetComponent<PhotonView>().IsMine == false) return;
         GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "TriggerRecoil");
         GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "ResetState");
         GetComponent<PhotonView>().RPC("ResetTrigger", RpcTarget.All, "WeakAttack");
@@ -57,12 +58,18 @@ public class PUN_ShooterMeleeInput : vShooterMeleeInput
     public override void TriggerWeakAttack()
     {
         cc.animator.SetInteger("AttackID", meleeManager.GetAttackID());
-        GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "WeakAttack");
+        if (GetComponent<PhotonView>().IsMine == true)
+        {
+            GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "WeakAttack");
+        }
     }
     public override void TriggerStrongAttack()
     {
         cc.animator.SetInteger("AttackID", meleeManager.GetAttackID());
-        GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "StrongAttack");
+        if (GetComponent<PhotonView>().IsMine == true)
+        {
+            GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "StrongAttack");
+        }
     }
     
     public override void OnReceiveAttack(vDamage damage, vIMeleeFighter attacker)

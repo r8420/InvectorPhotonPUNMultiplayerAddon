@@ -60,8 +60,11 @@ public class PUN_ThirdPersonController : vThirdPersonController
                 if (idleCount > 6)
                 {
                     idleCount = 0;
-                    GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "IdleRandomTrigger");
                     animator.SetInteger("IdleRandom", Random.Range(1, 4));
+                    if (GetComponent<PhotonView>().IsMine == true)
+                    {
+                        GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "IdleRandomTrigger");
+                    }
                 }
             }
             else
@@ -82,14 +85,20 @@ public class PUN_ThirdPersonController : vThirdPersonController
 
         if (!rollConditions || isRolling) return;
 
-        GetComponent<PhotonView>().RPC("CrossFadeInFixedTime", RpcTarget.All, "Roll", 0.1f);
+        if (GetComponent<PhotonView>().IsMine == true)
+        {
+            GetComponent<PhotonView>().RPC("CrossFadeInFixedTime", RpcTarget.All, "Roll", 0.1f);
+        }
         ReduceStamina(rollStamina, false);
         currentStaminaRecoveryDelay = 2f;
     }
 
     public override void TriggerAnimationState(string animationClip, float transition)
     {
-        GetComponent<PhotonView>().RPC("CrossFadeInFixedTime", RpcTarget.All, animationClip, transition);
+        if (GetComponent<PhotonView>().IsMine == true)
+        {
+            GetComponent<PhotonView>().RPC("CrossFadeInFixedTime", RpcTarget.All, animationClip, transition);
+        }
     }
 
     public override void Jump(bool consumeStamina = false)
@@ -101,10 +110,14 @@ public class PUN_ThirdPersonController : vThirdPersonController
         if (!jumpConditions) return;
         jumpCounter = jumpTimer;
         isJumping = true;
-        if (input.sqrMagnitude < 0.1f)
+        if (input.sqrMagnitude < 0.1f && GetComponent<PhotonView>().IsMine == true)
+        {
             GetComponent<PhotonView>().RPC("CrossFadeInFixedTime", RpcTarget.All, "Jump", 0.1f);
-        else
+        }
+        else if (GetComponent<PhotonView>().IsMine == true)
+        {
             GetComponent<PhotonView>().RPC("CrossFadeInFixedTime", RpcTarget.All, "JumpMove", 0.2f);
+        }
         if (consumeStamina)
         {
             ReduceStamina(jumpStamina, false);
@@ -112,4 +125,20 @@ public class PUN_ThirdPersonController : vThirdPersonController
         }
     }
 
+    public override void MatchTarget(Vector3 matchPosition, Quaternion matchRotation, AvatarTarget target, MatchTargetWeightMask weightMask, float normalisedStartTime, float normalisedEndTime)
+    {
+        if (animator.isMatchingTarget || animator.IsInTransition(0))
+            return;
+
+        float normalizeTime = Mathf.Repeat(animator.GetCurrentAnimatorStateInfo(0).normalizedTime, 1f);
+
+        if (normalizeTime > normalisedEndTime)
+            return;
+
+        if (GetComponent<PhotonView>().IsMine == true)
+        {
+            animator.MatchTarget(matchPosition, matchRotation, target, weightMask, normalisedStartTime, normalisedEndTime);
+            GetComponent<PhotonView>().RPC("AnimMatchTarget", RpcTarget.Others, matchPosition, matchRotation, target, weightMask, normalisedStartTime, normalisedEndTime);
+        }
+    }
 }
