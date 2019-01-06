@@ -322,6 +322,62 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
         correctBoneSpineRot = spine;
         correctBoneChestRot = chest;
     }
+    //vShooterWeapon Functions
+    [PunRPC]
+    public void SendShootEffect(string handler, string weaponName)
+    {
+       foreach(vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true))
+        {
+            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName)
+            {
+                weapon.ShootEffect(transform);
+            }
+        }
+    }
+    [PunRPC]
+    public void SendShootEffect(string aimPos, string handler, string weaponName)
+    {
+        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true))
+        {
+            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName)
+            {
+                weapon.ShootEffect(JsonUtility.FromJson<Vector3>(aimPos), transform);
+            }
+        }
+    }
+    [PunRPC]
+    public void SendReloadEffect(string handler, string weaponName)
+    {
+        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true))
+        {
+            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName)
+            {
+                weapon.ReloadEffect();
+            }
+        }
+    }
+    [PunRPC]
+    public void SendEmptyClipEffect(string handler, string weaponName)
+    {
+        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true))
+        {
+            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName)
+            {
+                weapon.EmptyClipEffect();
+            }
+        }
+    }
+    [PunRPC]
+    public void SendStopSound(string handler, string weaponName)
+    {
+        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true))
+        {
+            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName)
+            {
+                weapon.StopSound();
+            }
+        }
+    }
     #endregion
 
     #region Local Actions Based on Server Changes

@@ -7,8 +7,6 @@ using Invector.vCharacterController.AI;
 using Invector.vShooter;
 using Invector.vItemManager;
 using UnityEditor.Events;
-using UnityEngine.Events;
-using System;
 
 public class ConvertScene : EditorWindow
 {
@@ -72,17 +70,27 @@ public class ConvertScene : EditorWindow
             _scanScrollPos = EditorGUILayout.BeginScrollView(_scanScrollPos, GUILayout.Width(350), GUILayout.Height(250));
             for (int i = 0; i < found.Count; i++)
             {
-                if (GUILayout.Button(found[i].name))
-                {
-                    Selection.activeGameObject = found[i];
-                    buttonOn[i] = !buttonOn[i];
-                }
                 if (buttonOn[i] == true)
                 {
-                    if (GUILayout.Button(" !! REMOVE !!: " + found[i].name))
+                    EditorGUILayout.BeginHorizontal();
+                    if (GUILayout.Button(" X "))
                     {
                         found.RemoveAt(i);
                         buttonOn.RemoveAt(i);
+                    }
+                    if (GUILayout.Button(found[i].name))
+                    {
+                        Selection.activeGameObject = found[i];
+                        buttonOn[i] = !buttonOn[i];
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+                else
+                {
+                    if (GUILayout.Button(found[i].name))
+                    {
+                        Selection.activeGameObject = found[i];
+                        buttonOn[i] = !buttonOn[i];
                     }
                 }
             }
@@ -106,6 +114,7 @@ public class ConvertScene : EditorWindow
             EditorGUILayout.EndScrollView();
         }
     }
+
     private void PUN_ScanScene()
     {
         found.Clear();
@@ -186,6 +195,8 @@ public class ConvertScene : EditorWindow
             PUN_ConvertRigidbody(obj);
             PUN_ConvertvItemCollection(obj);
         }
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
     }
     private void PUN_ConvertThrowUI(GameObject obj)
     {
@@ -243,10 +254,9 @@ public class ConvertScene : EditorWindow
             }
             if (obj.GetComponent<vControlAimCanvas>())
             {
-                obj.GetComponent<PUN_ControlAimCanvas>().canvas = obj.GetComponent<vControlAimCanvas>().canvas;
-                obj.GetComponent<PUN_ControlAimCanvas>().aimCanvasCollection = obj.GetComponent<vControlAimCanvas>().aimCanvasCollection;
-                obj.GetComponent<PUN_ControlAimCanvas>().currentAimCanvas = obj.GetComponent<vControlAimCanvas>().currentAimCanvas;
                 vControlAimCanvas canvas = obj.GetComponent<vControlAimCanvas>();
+                PUN_Helpers.CopyComponentTo(canvas, obj.GetComponent<PUN_ControlAimCanvas>());
+
                 if (canvas.GetType() != typeof(PUN_ControlAimCanvas))
                 {
                     DestroyImmediate(canvas);

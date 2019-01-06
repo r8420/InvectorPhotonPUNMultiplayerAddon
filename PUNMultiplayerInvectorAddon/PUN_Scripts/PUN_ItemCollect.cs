@@ -7,7 +7,10 @@ public class PUN_ItemCollect : MonoBehaviour {
 
     public void NetworkDestory()
     {
-        GetComponent<PhotonView>().RPC("ItemDestroy", RpcTarget.AllBuffered, gameObject.GetComponent<PhotonView>().ViewID);
+        if (PhotonNetwork.IsConnected == true)
+        {
+            GetComponent<PhotonView>().RPC("ItemDestroy", RpcTarget.AllBuffered, gameObject.GetComponent<PhotonView>().ViewID);
+        }
     }
     [PunRPC]
     public void ItemDestroy(int viewId)

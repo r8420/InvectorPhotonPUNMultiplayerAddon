@@ -38,6 +38,7 @@ public class ModifyScripts : EditorWindow
     M_FileData _ladderAction;
     M_FileData _throwObject;
     M_FileData _weaponHolder;
+    //M_FileData _shooterWeapon;
     #endregion
 
     [MenuItem("Invector/Multiplayer/01. Add Multiplayer To Invector Scripts")]
@@ -86,6 +87,7 @@ public class ModifyScripts : EditorWindow
         M_LadderAction();
         M_ThrowObject();
         M_WeaponHolder();
+        //M_ShooterWeapon();
     }
 
     #region Individual Files Modification Instructions
@@ -282,6 +284,22 @@ public class ModifyScripts : EditorWindow
             ModifyFile(_weaponHolder.path, newlines);
         }
     }
+    //void M_ShooterWeapon()
+    //{
+    //    _shooterWeapon = FileExists("vShooterWeapon.cs", Application.dataPath);
+    //    if (_shooterWeapon.exists == true)
+    //    {
+    //        List<M_Additions> newlines = new List<M_Additions>();
+    //        M_Additions[] adding = new M_Additions[1];
+    //        adding[0] = new M_Additions();
+    //        adding[0].target = "public void StartEmitters()";
+    //        adding[0].add = "public virtual void StartEmitters()";
+    //        adding[0].type = M_FileAddtionType.Replace;
+
+    //        newlines.AddRange(adding);
+    //        ModifyFile(_shooterWeapon.path, newlines);
+    //    }
+    //}
     #endregion
 
     #region Modification Logic
