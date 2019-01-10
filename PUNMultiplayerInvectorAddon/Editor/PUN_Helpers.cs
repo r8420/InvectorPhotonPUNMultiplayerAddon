@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection;
+using UnityEditor.Events;
 using UnityEngine;
+using UnityEngine.Events;
 
 public static class PUN_Helpers
 {
@@ -14,14 +16,28 @@ public static class PUN_Helpers
         {
             if (pinfo.CanWrite)
             {
-                pinfo.SetValue(newComp, pinfo.GetValue(orgComp, null), null);
+                try
+                {
+                    pinfo.SetValue(newComp, pinfo.GetValue(orgComp, null), null);
+                }
+                catch
+                {
+                    Debug.LogWarning("Failed To Set property value of "+pinfo.Name+" for "+newComp+" component");
+                }
             }
         }
 
         FieldInfo[] finfos = type.GetFields(flags);
         foreach (var finfo in finfos)
         {
-            finfo.SetValue(newComp, finfo.GetValue(orgComp));
+            try
+            {
+                finfo.SetValue(newComp, finfo.GetValue(orgComp));
+            }
+            catch
+            {
+                Debug.LogWarning("Failed to set field value: " + finfo.Name + " for " + newComp + " component.");
+            }
         }
     }
 }

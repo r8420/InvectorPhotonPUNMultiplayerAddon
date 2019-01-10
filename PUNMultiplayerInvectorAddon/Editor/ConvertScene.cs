@@ -53,7 +53,7 @@ public class ConvertScene : EditorWindow
         }
         else
         {
-            EditorGUILayout.HelpBox("Now go to each gameobject and make sure the \"PhotonView\" is turned on to the setting you want. Note: You can select each button below to be directed to each gameobject. \n\n 2. If this object is a prefab you MUST click Apply on the prefab. If you click play in the editor the resulting changes will be lost!", MessageType.Info);
+            EditorGUILayout.HelpBox("Now go to each gameobject and make sure the \"PhotonView\" is turned on to the setting you want. Note: You can select each button below to be directed to each gameobject. \n\n 2. !!IMPORTANT!! If this object is a prefab you MUST click Apply on the prefab. If you click play in the editor the resulting changes will be lost but this script will think that gameobject is still updated!", MessageType.Info);
         }
         GUILayout.EndVertical();
         if (_scanned == false)
@@ -195,26 +195,21 @@ public class ConvertScene : EditorWindow
             PUN_ConvertRigidbody(obj);
             PUN_ConvertvItemCollection(obj);
         }
+        
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
     }
     private void PUN_ConvertThrowUI(GameObject obj)
     {
         if (obj.GetComponent<vThrowUI>() || obj.GetComponent<PUN_ThrowUI>())
-        { 
+        {
+            vThrowUI org = obj.GetComponent<vThrowUI>();
             if (!obj.GetComponent<PUN_ThrowUI>())
             {
                 obj.AddComponent<PUN_ThrowUI>();
-            }
-            if (obj.GetComponent<vThrowUI>())
-            {
-                obj.GetComponent<PUN_ThrowUI>().maxThrowCount = obj.GetComponent<vThrowUI>().maxThrowCount;
-                obj.GetComponent<PUN_ThrowUI>().currentThrowCount = obj.GetComponent<vThrowUI>().currentThrowCount;
-                vThrowUI ui = obj.GetComponent<vThrowUI>();
-                if (ui.GetType() != typeof(PUN_ThrowUI))
-                {
-                    DestroyImmediate(ui);
-                }
+                PUN_ThrowUI newComp = obj.GetComponent<PUN_ThrowUI>();
+                PUN_Helpers.CopyComponentTo(org, newComp);
+                DestroyImmediate(org);
             }
             obj.GetComponent<PUN_ThrowUI>().enabled = true;
 
@@ -247,20 +242,14 @@ public class ConvertScene : EditorWindow
     private void PUN_ConvertControlAimCanvas(GameObject obj)
     {
         if (obj.GetComponent<vControlAimCanvas>() || obj.GetComponent<PUN_ControlAimCanvas>())
-        { 
+        {
+            vControlAimCanvas org = obj.GetComponent<vControlAimCanvas>();
             if (!obj.GetComponent<PUN_ControlAimCanvas>())
             {
                 obj.AddComponent<PUN_ControlAimCanvas>();
-            }
-            if (obj.GetComponent<vControlAimCanvas>())
-            {
-                vControlAimCanvas canvas = obj.GetComponent<vControlAimCanvas>();
-                PUN_Helpers.CopyComponentTo(canvas, obj.GetComponent<PUN_ControlAimCanvas>());
-
-                if (canvas.GetType() != typeof(PUN_ControlAimCanvas))
-                {
-                    DestroyImmediate(canvas);
-                }
+                PUN_ControlAimCanvas newComp = obj.GetComponent<PUN_ControlAimCanvas>();
+                PUN_Helpers.CopyComponentTo(org, newComp);
+                DestroyImmediate(org);
             }
             obj.GetComponent<PUN_ControlAimCanvas>().enabled = true;
 
@@ -271,6 +260,7 @@ public class ConvertScene : EditorWindow
     {
         if (obj.GetComponent<vItemCollection>())
         {
+            vItemCollection org = obj.GetComponent<vItemCollection>();
             if (!obj.GetComponent<PhotonView>())
             {
                 obj.AddComponent<PhotonView>();
@@ -278,16 +268,16 @@ public class ConvertScene : EditorWindow
             if (!obj.GetComponent<PUN_ItemCollect>())
             {
                 obj.AddComponent<PUN_ItemCollect>();
-            }
-            for (int i = 0; i < obj.GetComponent<vItemCollection>().onDoActionWithTarget.GetPersistentEventCount(); i++)
-            {
-                if (obj.GetComponent<vItemCollection>().onDoActionWithTarget.GetPersistentMethodName(i) == "NetworkDestroy")
+                for (int i = 0; i < obj.GetComponent<vItemCollection>().onDoActionWithTarget.GetPersistentEventCount(); i++)
                 {
-                    UnityEventTools.RemovePersistentListener(obj.GetComponent<vItemCollection>().onDoActionWithTarget, i);
+                    if (obj.GetComponent<vItemCollection>().onDoActionWithTarget.GetPersistentMethodName(i) == "NetworkDestroy")
+                    {
+                        UnityEventTools.RemovePersistentListener(obj.GetComponent<vItemCollection>().onDoActionWithTarget, i);
+                    }
                 }
+                obj.GetComponent<vItemCollection>().OnDoAction.AddListener(obj.GetComponent<PUN_ItemCollect>().NetworkDestory);
+                UnityEventTools.AddPersistentListener(obj.GetComponent<vItemCollection>().OnDoAction, obj.GetComponent<PUN_ItemCollect>().NetworkDestory);
             }
-            obj.GetComponent<vItemCollection>().OnDoAction.AddListener(obj.GetComponent<PUN_ItemCollect>().NetworkDestory);
-            UnityEventTools.AddPersistentListener(obj.GetComponent<vItemCollection>().OnDoAction, obj.GetComponent<PUN_ItemCollect>().NetworkDestory);
 
             modified.Add(obj);
         }
