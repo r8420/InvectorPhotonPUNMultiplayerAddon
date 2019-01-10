@@ -50,3 +50,6 @@ This creates the network manager gameobject. You don't really need to run this a
 
 ### Make Player Multiplayer Compatible
 This copies your gameobject, adds needed components, creates a network manager (with example UI), and setups up the PhotonView component with needed values. It also makes a prefab of this compatible player and assigns that player to the spawnable player for the network manager.
+
+### Convert Prefabs To Multiplayer
+This first scans your entire project for ALL prefabs. Then it filters the prefabs based on invector components that could be converted to work with multiplayer (PUN_* override versions). You select the prefabs you wish to update and it will apply the PUN override versions of the invector components and copy over all of the settings from the original component to the PUN override version.
