@@ -1,67 +1,44 @@
 ﻿using Invector.vShooter;
 using Photon.Pun;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PUN_ShooterManager : vShooterManager
 {
-
-    public override void ReloadWeapon(bool ignoreAmmo = false, bool ignoreAnim = false)
+    public override void ReloadWeapon()
     {
         var weapon = rWeapon ? rWeapon : lWeapon;
 
         if (!weapon || !weapon.gameObject.activeInHierarchy) return;
         UpdateTotalAmmo();
         bool primaryWeaponAnim = false;
-        if (!(!ignoreAmmo && (weapon.ammoCount >= weapon.clipSize || !WeaponHasAmmo())) && !weapon.autoReload)
-        {
-            if (!ignoreAnim)
-                onReloadWeapon.Invoke(weapon);
-            var needAmmo = weapon.clipSize - weapon.ammoCount;
-            if (!ignoreAmmo && WeaponAmmo(weapon).count < needAmmo)
-                needAmmo = WeaponAmmo(weapon).count;
 
-            weapon.AddAmmo(needAmmo);
-            if (!ignoreAmmo)
-                WeaponAmmo(weapon).Use(needAmmo);
-            if (GetComponent<Animator>() && !ignoreAnim)
+        if (weapon.ammoCount < weapon.clipSize && (weapon.isInfinityAmmo || WeaponHasAmmo()) && !weapon.autoReload)
+        {
+            onStartReloadWeapon.Invoke(weapon);
+
+            if (GetComponent<Animator>())
             {
-                if (GetComponent<PhotonView>().IsMine == true)
+                GetComponent<Animator>().SetInteger("ReloadID", GetReloadID());
+                GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Reload");
+            }
+            if (CurrentWeapon && CurrentWeapon.gameObject.activeInHierarchy) StartCoroutine(AddAmmoToWeapon(CurrentWeapon, CurrentWeapon.reloadTime));
+            primaryWeaponAnim = true;
+        }
+        if (weapon.secundaryWeapon && weapon.secundaryWeapon.ammoCount >= weapon.secundaryWeapon.clipSize && (weapon.secundaryWeapon.isInfinityAmmo || WeaponHasAmmo(true)) && !weapon.secundaryWeapon.autoReload)
+        {
+            if (!primaryWeaponAnim)
+            {
+                if (GetComponent<Animator>())
                 {
-                    GetComponent<Animator>().SetInteger("ReloadID", GetReloadID());
+                    primaryWeaponAnim = true;
+                    GetComponent<Animator>().SetInteger("ReloadID", weapon.secundaryWeapon.reloadID);
                     GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Reload");
                 }
             }
-            if (!ignoreAnim)
-                weapon.ReloadEffect();
-            primaryWeaponAnim = true;
-        }
-        if (weapon.secundaryWeapon && !((weapon.secundaryWeapon.ammoCount >= weapon.secundaryWeapon.clipSize || !WeaponHasAmmo(true))) && !weapon.secundaryWeapon.autoReload)
-        {
-            var needAmmo = weapon.secundaryWeapon.clipSize - weapon.secundaryWeapon.ammoCount;
-            if (!ignoreAmmo && WeaponAmmo(weapon.secundaryWeapon).count < needAmmo)
-                needAmmo = WeaponAmmo(weapon.secundaryWeapon).count;
-            weapon.secundaryWeapon.AddAmmo(needAmmo);
-            if (!ignoreAmmo)
-                WeaponAmmo(weapon.secundaryWeapon).Use(needAmmo);
-            if (!primaryWeaponAnim)
-            {
-                if (GetComponent<Animator>() && !ignoreAnim)
-                {
-                    primaryWeaponAnim = true;
-                    if (GetComponent<PhotonView>().IsMine == true)
-                    {
-                        GetComponent<Animator>().SetInteger("ReloadID", weapon.secundaryWeapon.reloadID);
-                        GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Reload");
-                    }
-                }
-                if (!ignoreAnim)
-                    weapon.secundaryWeapon.ReloadEffect();
-            }
+            StartCoroutine(AddAmmoToWeapon(CurrentWeapon.secundaryWeapon, primaryWeaponAnim ? CurrentWeapon.reloadTime : CurrentWeapon.secundaryWeapon.reloadTime, !primaryWeaponAnim));
         }
 
-        UpdateTotalAmmo();
     }
 
     protected override IEnumerator Recoil(float horizontal, float up)
@@ -81,7 +58,7 @@ public class PUN_ShooterManager : vShooterManager
             base.SetLeftWeapon(weapon);
             if (gameObject.GetComponent<PhotonView>().IsMine == true)
             {
-                gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weapon.name, PUN_ItemManager.WeaponType.shooter);
+                gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weapon.name);
             }
         }
     }

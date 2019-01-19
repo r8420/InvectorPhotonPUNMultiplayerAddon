@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using UnityEditor;
 using UnityEditor.Events;
 using UnityEngine;
 using UnityEngine.Events;
@@ -39,6 +41,43 @@ public static class PUN_Helpers
                 Debug.LogWarning("Failed to set field value: " + finfo.Name + " for " + newComp + " component.");
             }
         }
+    }
+
+    public static GameObject FindExampleUIPrefab()
+    {
+        string[] prefabPaths = GetAllPrefabs();
+        GameObject target;
+
+        foreach (string prefabPath in prefabPaths)
+        {
+            UnityEngine.Object prefab = AssetDatabase.LoadMainAssetAtPath(prefabPath);
+            try
+            {
+                target = (GameObject)prefab;
+                if (target.GetComponent<PUN_ExampleUI>())
+                {
+                    return target;
+                }
+            }
+            catch
+            {
+                Debug.LogWarning("Unable to cast: " + prefabPath + " to GameObject, skipping");
+            }
+        }
+
+        return null;
+    }
+
+
+    public static string[] GetAllPrefabs()
+    {
+        string[] temp = AssetDatabase.GetAllAssetPaths();
+        List<string> result = new List<string>();
+        foreach (string s in temp)
+        {
+            if (s.Contains(".prefab")) result.Add(s);
+        }
+        return result.ToArray();
     }
 }
 

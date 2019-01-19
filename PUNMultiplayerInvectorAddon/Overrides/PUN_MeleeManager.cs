@@ -7,6 +7,8 @@ using Invector.vItemManager;
 
 public class PUN_MeleeManager : vMeleeManager
 {
+    bool send = true;
+
     public override void SetRightWeapon(GameObject weaponObject)
     {
         if (weaponObject)
@@ -14,7 +16,18 @@ public class PUN_MeleeManager : vMeleeManager
             base.SetRightWeapon(weaponObject);
             if (GetComponent<PhotonView>().IsMine == true)
             {
-                gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.OthersBuffered, weaponObject.name);
+                send = true;
+                foreach (Component comp in weaponObject.GetComponents<Component>())
+                {
+                    if (comp.ToString().Contains("vShooterEquipment"))
+                    {
+                        send = false;
+                    }
+                }
+                if (send == true)
+                {
+                    gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.OthersBuffered, weaponObject.name);
+                }
             }
         }
     }
@@ -25,7 +38,18 @@ public class PUN_MeleeManager : vMeleeManager
             base.SetRightWeapon(weapon);
             if (GetComponent<PhotonView>().IsMine == true)
             {
-                gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.OthersBuffered, weapon.gameObject.name);
+                send = true;
+                foreach (Component comp in weapon.GetComponents<Component>())
+                {
+                    if (comp.ToString().Contains("vShooterEquipment"))
+                    {
+                        send = false;
+                    }
+                }
+                if (send == true)
+                {
+                    gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.OthersBuffered, weapon.gameObject.name);
+                }
             }
         }
     }
@@ -37,11 +61,21 @@ public class PUN_MeleeManager : vMeleeManager
             base.SetLeftWeapon(weapon);
             if (GetComponent<PhotonView>().IsMine == true)
             {
-                gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weapon.gameObject.name);
+                send = true;
+                foreach (Component comp in weapon.GetComponents<Component>())
+                {
+                    if (comp.ToString().Contains("vShooterEquipment"))
+                    {
+                        send = false;
+                    }
+                }
+                if (send == true)
+                {
+                    gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weapon.gameObject.name);
+                }
             }
         }
     }
-
     public override void SetLeftWeapon(GameObject weaponObject)
     {
         if (weaponObject)
@@ -49,7 +83,18 @@ public class PUN_MeleeManager : vMeleeManager
             base.SetLeftWeapon(weaponObject);
             if (GetComponent<PhotonView>().IsMine == true)
             {
-                gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weaponObject);
+                send = true;
+                foreach (Component comp in weaponObject.GetComponents<Component>())
+                {
+                    if (comp.ToString().Contains("vShooterEquipment"))
+                    {
+                        send = false;
+                    }
+                }
+                if (send == true)
+                {
+                    gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weaponObject.name);
+                }
             }
         }
     }

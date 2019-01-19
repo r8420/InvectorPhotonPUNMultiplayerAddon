@@ -148,7 +148,7 @@ public class SetupNetworking : EditorWindow
         Setup_ThirdPersonController(prefab);
         Setup_ShooterMeleeInput(prefab);
         Setup_MeleeCombatInput(prefab);
-        Setup_ThrowObject(prefab);
+        //Setup_ThrowObject(prefab);
         Setup_LadderAction(prefab);
         Setup_CameraVerify(prefab);
         Setup_WeaponHolders(prefab);
@@ -262,20 +262,20 @@ public class SetupNetworking : EditorWindow
             prefab.GetComponent<PUN_LadderAction>().enabled = false;
         }
     }
-    void Setup_ThrowObject(GameObject prefab)
-    {
-        if (prefab.GetComponent<vThrowObject>() || prefab.GetComponent<PUN_ThrowObject>())
-        {
-            vThrowObject org = prefab.GetComponent<vThrowObject>();
-            if (!prefab.GetComponent<PUN_ThrowObject>())
-            {
-                prefab.AddComponent<PUN_ThrowObject>();
-                PUN_ThrowObject newComp = prefab.GetComponent<PUN_ThrowObject>();
-                PUN_Helpers.CopyComponentTo(org, newComp);
-            }
-            prefab.GetComponent<PUN_ThrowObject>().enabled = false;
-        }
-    }
+    //void Setup_ThrowObject(GameObject prefab)
+    //{
+    //    if (prefab.GetComponent<vThrowObject>() || prefab.GetComponent<PUN_ThrowObject>())
+    //    {
+    //        vThrowObject org = prefab.GetComponent<vThrowObject>();
+    //        if (!prefab.GetComponent<PUN_ThrowObject>())
+    //        {
+    //            prefab.AddComponent<PUN_ThrowObject>();
+    //            PUN_ThrowObject newComp = prefab.GetComponent<PUN_ThrowObject>();
+    //            PUN_Helpers.CopyComponentTo(org, newComp);
+    //        }
+    //        prefab.GetComponent<PUN_ThrowObject>().enabled = false;
+    //    }
+    //}
     void Setup_CameraVerify(GameObject prefab)
     {
         if (!prefab.GetComponent<PUN_ThirdPersonCameraVerify>()) prefab.AddComponent<PUN_ThirdPersonCameraVerify>();
@@ -424,7 +424,7 @@ public class SetupNetworking : EditorWindow
         if (!prefab.GetComponent<vShooterMeleeInput>() && prefab.GetComponent<vMeleeCombatInput>()) DestroyImmediate(prefab.GetComponent<vMeleeCombatInput>());
         if (prefab.GetComponent<vGenericAction>()) DestroyImmediate(prefab.GetComponent<vGenericAction>());
         if (prefab.GetComponent<vGenericAnimation>()) DestroyImmediate(prefab.GetComponent<vGenericAnimation>());
-        if (prefab.GetComponent<vThrowObject>()) DestroyImmediate(prefab.GetComponent<vThrowObject>());
+        //if (prefab.GetComponent<vThrowObject>()) DestroyImmediate(prefab.GetComponent<vThrowObject>());
         if (prefab.GetComponent<vLadderAction>()) DestroyImmediate(prefab.GetComponent<vLadderAction>());
     }
     #endregion

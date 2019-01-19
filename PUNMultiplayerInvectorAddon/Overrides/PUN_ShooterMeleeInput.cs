@@ -15,16 +15,83 @@ public class PUN_ShooterMeleeInput : vShooterMeleeInput
         base.Start();
     }
 
-    protected override void MeleeWeakAttackInput()
+    protected override void UpdateMeleeAnimations() //provided by "pararini" on invector forums, thanks!
     {
-        if (cc.animator == null) return;
-        base.MeleeWeakAttackInput();
-    }
+        // disable the onlyarms layer and run the melee methods if the character is not using any shooter weapon
+        if (!animator) return;
 
-    protected override void MeleeStrongAttackInput()
+        // update MeleeManager Animator Properties
+        if ((shooterManager == null || !CurrentActiveWeapon) && meleeManager)
+        {
+            base.UpdateMeleeAnimations();
+            // set the uppbody id (armsonly layer)
+            animator.SetFloat("UpperBody_ID", 0, .2f, Time.deltaTime);
+            // turn on the onlyarms layer to aim 
+            onlyArmsLayerWeight = Mathf.Lerp(onlyArmsLayerWeight, 0, 6f * Time.deltaTime);
+            GetComponent<PhotonView>().RPC("SetLayerWeight", RpcTarget.AllBuffered, onlyArmsLayer, onlyArmsLayerWeight);
+            // reset aiming parameter
+            animator.SetBool("IsAiming", false);
+            isReloading = false;
+        }
+        // update ShooterManager Animator Properties
+        else if (shooterManager && CurrentActiveWeapon)
+            UpdateShooterAnimations();
+        // reset Animator Properties
+        else
+        {
+            // set the move set id (base layer) 
+            animator.SetFloat("MoveSet_ID", 0, .1f, Time.deltaTime);
+            // set the uppbody id (armsonly layer)
+            animator.SetFloat("UpperBody_ID", 0, .2f, Time.deltaTime);
+            // set if the character can aim or not (upperbody layer)
+            animator.SetBool("CanAim", false);
+            // character is aiming
+            animator.SetBool("IsAiming", false);
+            // turn on the onlyarms layer to aim 
+            onlyArmsLayerWeight = Mathf.Lerp(onlyArmsLayerWeight, 0, 6f * Time.deltaTime);
+            GetComponent<PhotonView>().RPC("SetLayerWeight", RpcTarget.AllBuffered, onlyArmsLayer, onlyArmsLayerWeight);
+        }
+    }
+    protected override void UpdateShooterAnimations() //provided by "pararini" on invector forums, thanks!
     {
-        if (cc.animator == null) return;
-        base.MeleeStrongAttackInput();
+        if (shooterManager == null) return;
+
+        if ((!isAiming && aimTimming <= 0) && meleeManager)
+        {
+            // set attack id from the melee weapon (trigger fullbody atk animations)
+            animator.SetInteger("AttackID", meleeManager.GetAttackID());
+        }
+        else
+        {
+            // set attack id from the shooter weapon (trigger shot layer animations)
+            animator.SetFloat("Shot_ID", shooterManager.GetShotID());
+        }
+        // turn on the onlyarms layer to aim 
+        onlyArmsLayerWeight = Mathf.Lerp(onlyArmsLayerWeight, (CurrentActiveWeapon) ? 1f : 0f, 6f * Time.deltaTime);
+        GetComponent<PhotonView>().RPC("SetLayerWeight", RpcTarget.AllBuffered, onlyArmsLayer, onlyArmsLayerWeight);
+
+        if (CurrentActiveWeapon != null && !shooterManager.useDefaultMovesetWhenNotAiming || (isAiming || aimTimming > 0))
+        {
+            // set the move set id (base layer) 
+            animator.SetFloat("MoveSet_ID", shooterManager.GetMoveSetID(), .1f, Time.deltaTime);
+        }
+        else if (shooterManager.useDefaultMovesetWhenNotAiming)
+        {
+            // set the move set id (base layer) 
+            animator.SetFloat("MoveSet_ID", 0, .1f, Time.deltaTime);
+        }
+        // set the isBlocking false while using shooter weapons
+        animator.SetBool("IsBlocking", false);
+        // set the uppbody id (armsonly layer)
+        animator.SetFloat("UpperBody_ID", shooterManager.GetUpperBodyID(), .2f, Time.deltaTime);
+        // set if the character can aim or not (upperbody layer)
+        animator.SetBool("CanAim", aimConditions);
+        // character is aiming
+        animator.SetBool("IsAiming", (isAiming || aimTimming > 0) && !isAttacking);
+        // find states with the Reload tag
+        isReloading = cc.IsAnimatorTag("IsReloading") || shooterManager.isReloadingWeapon;
+        // find states with the IsEquipping tag
+        isEquipping = cc.IsAnimatorTag("IsEquipping");
     }
     public override void OnEnableAttack()
     {

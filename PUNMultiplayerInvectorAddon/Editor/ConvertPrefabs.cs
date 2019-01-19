@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using UnityEditor;
@@ -166,10 +165,6 @@ public class ConvertPrefabs : EditorWindow
             PUN_Helpers.CopyComponentTo(org, target.GetComponent<PUN_ShooterWeapon>());
             DestroyImmediate(org, true);
             // ------------------------------------------- //
-        }
-        if (!target.GetComponent<PhotonView>())
-        {
-            target.AddComponent<PhotonView>();
         }
     }
 

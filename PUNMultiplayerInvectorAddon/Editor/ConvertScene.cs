@@ -28,6 +28,8 @@ public class ConvertScene : EditorWindow
     Vector2 _scanScrollPos;
     Vector2 _modifiedScrollPos;
     bool _ignorePlayers = true;
+    bool _ignoreRigidbodies = false;
+    bool _ignoreItemCollections = false;
     List<bool> buttonOn = new List<bool>();
     #endregion
 
@@ -58,7 +60,9 @@ public class ConvertScene : EditorWindow
         GUILayout.EndVertical();
         if (_scanned == false)
         {
-            _ignorePlayers = EditorGUILayout.Toggle("Ignore Players/AI:",_ignorePlayers);
+            _ignorePlayers = EditorGUILayout.Toggle("Ignore Players/AI:", _ignorePlayers);
+            _ignoreRigidbodies = EditorGUILayout.Toggle("Ignore Rigidbodies:", _ignoreRigidbodies);
+            _ignoreItemCollections = EditorGUILayout.Toggle("Ignore Item Collections:", _ignoreItemCollections);
             if (GUILayout.Button("Scan Scene"))
             {
                 _scanned = true;
@@ -119,10 +123,16 @@ public class ConvertScene : EditorWindow
     {
         found.Clear();
         
-        Collect_ThrowUI();
+        //Collect_ThrowUI();
+        if (_ignoreRigidbodies == false)
+        {
+            Collect_Rigidbodies();
+        }
+        if (_ignoreItemCollections == false)
+        {
+            Collect_vItemCollection();
+        }
         Collect_vControlAimCanvas();
-        Collect_Rigidbodies();
-        Collect_vItemCollection();
     }
     private void Collect_vItemCollection()
     {
@@ -172,25 +182,25 @@ public class ConvertScene : EditorWindow
             }
         }
     }
-    private void Collect_ThrowUI()
-    {
-        vThrowUI[] uis = FindObjectsOfType<vThrowUI>();
-        foreach (vThrowUI ui in uis)
-        {
-            if (!ui.gameObject.GetComponent<PUN_ThrowUI>())
-            {
-                found.Add(ui.gameObject);
-                buttonOn.Add(false);
-            }
-        }
-    }
+    //private void Collect_ThrowUI()
+    //{
+    //    vThrowUI[] uis = FindObjectsOfType<vThrowUI>();
+    //    foreach (vThrowUI ui in uis)
+    //    {
+    //        if (!ui.gameObject.GetComponent<PUN_ThrowUI>())
+    //        {
+    //            found.Add(ui.gameObject);
+    //            buttonOn.Add(false);
+    //        }
+    //    }
+    //}
 
     private void PUN_ConvertSceneToMultiplayer()
     {
         modified.Clear();
         foreach(GameObject obj in found)
         {
-            PUN_ConvertThrowUI(obj);
+            //PUN_ConvertThrowUI(obj);
             PUN_ConvertControlAimCanvas(obj);
             PUN_ConvertRigidbody(obj);
             PUN_ConvertvItemCollection(obj);
@@ -199,23 +209,23 @@ public class ConvertScene : EditorWindow
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
     }
-    private void PUN_ConvertThrowUI(GameObject obj)
-    {
-        if (obj.GetComponent<vThrowUI>() || obj.GetComponent<PUN_ThrowUI>())
-        {
-            vThrowUI org = obj.GetComponent<vThrowUI>();
-            if (!obj.GetComponent<PUN_ThrowUI>())
-            {
-                obj.AddComponent<PUN_ThrowUI>();
-                PUN_ThrowUI newComp = obj.GetComponent<PUN_ThrowUI>();
-                PUN_Helpers.CopyComponentTo(org, newComp);
-                DestroyImmediate(org);
-            }
-            obj.GetComponent<PUN_ThrowUI>().enabled = true;
+    //private void PUN_ConvertThrowUI(GameObject obj)
+    //{
+    //    if (obj.GetComponent<vThrowUI>() || obj.GetComponent<PUN_ThrowUI>())
+    //    {
+    //        vThrowUI org = obj.GetComponent<vThrowUI>();
+    //        if (!obj.GetComponent<PUN_ThrowUI>())
+    //        {
+    //            obj.AddComponent<PUN_ThrowUI>();
+    //            PUN_ThrowUI newComp = obj.GetComponent<PUN_ThrowUI>();
+    //            PUN_Helpers.CopyComponentTo(org, newComp);
+    //            DestroyImmediate(org);
+    //        }
+    //        obj.GetComponent<PUN_ThrowUI>().enabled = true;
 
-            modified.Add(obj);
-        }
-    }
+    //        modified.Add(obj);
+    //    }
+    //}
     private void PUN_ConvertRigidbody(GameObject obj)
     {
         if (obj.GetComponent<Rigidbody>())

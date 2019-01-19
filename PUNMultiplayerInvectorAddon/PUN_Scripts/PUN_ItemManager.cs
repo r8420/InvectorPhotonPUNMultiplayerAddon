@@ -8,7 +8,9 @@ public class PUN_ItemManager : MonoBehaviour {
 
     [SerializeField] private vItemListData allItems = null;
     public enum EquipSide { Left, Right }
-    public enum WeaponType { shooter, melee }
+    public enum WeaponType { shooter, melee, bow, shield }
+
+    private List<string> customHandlers = new List<string>();
 
     public GameObject createItem(string itemName, EquipSide side, GameObject calledFrom)
     {
@@ -29,13 +31,20 @@ public class PUN_ItemManager : MonoBehaviour {
             if (temp == itemName)
             {
                 newitem = Instantiate(item.originalObject, this.transform.position, this.transform.rotation);
+                if (item.customHandler != "")
+                {
+                    if (!customHandlers.Contains(item.customHandler))
+                    {
+                        customHandlers.Add(item.customHandler);
+                    }
+                }
                 switch (item.type)
                 {
                     case vItemType.Shooter:
-                        SetWeapon(newitem, calledFrom, side, WeaponType.shooter);
+                        SetWeapon(newitem, calledFrom, side, WeaponType.shooter, item.customHandler);
                         break;
                     case vItemType.MeleeWeapon:
-                        SetWeapon(newitem, calledFrom, side, WeaponType.melee);
+                        SetWeapon(newitem, calledFrom, side, WeaponType.melee, item.customHandler);
                         break;
                 }
             }
@@ -46,7 +55,7 @@ public class PUN_ItemManager : MonoBehaviour {
 
     public void DestroyWeapon(GameObject owner, string weaponName, EquipSide side)
     {
-        List<Transform> handlers = GetHandlers(owner);
+        List<Transform> handlers = GetHandlers(owner,side);
         List<Transform> weapons = new List<Transform>();
         foreach (Transform handler in handlers)
         {
@@ -59,27 +68,38 @@ public class PUN_ItemManager : MonoBehaviour {
         }
     }
 
-    void SetWeapon(GameObject weapon, GameObject owner, EquipSide side, WeaponType type)
+    void SetWeapon(GameObject weapon, GameObject owner, EquipSide side, WeaponType type, string customHandler)
     {
         //vShooterWeapon shooterWeapon = weapon.GetComponent<vShooterWeapon>();
         //PUN_ShooterManager manager = owner.GetComponent<PUN_ShooterManager>();
-        Transform handler = GetHandler(owner.transform, side, type);
+        Transform handler = GetHandler(owner.transform, side, type, customHandler);
         weapon.transform.position = handler.position;
         weapon.transform.rotation = handler.rotation;
         weapon.transform.SetParent(handler);
     }
 
-    List<Transform> GetHandlers(GameObject owner)
+    List<Transform> GetHandlers(GameObject owner, EquipSide side)
     {
         List<Transform> handlers = new List<Transform>();
-        handlers.Add(GetHandler(owner.transform, EquipSide.Left, WeaponType.melee));
-        handlers.Add(GetHandler(owner.transform, EquipSide.Right, WeaponType.melee));
-        handlers.Add(GetHandler(owner.transform, EquipSide.Left, WeaponType.shooter));
-        handlers.Add(GetHandler(owner.transform, EquipSide.Right, WeaponType.shooter));
+        handlers.Add(GetHandler(owner.transform, side, WeaponType.melee,""));
+        handlers.Add(GetHandler(owner.transform, side, WeaponType.shooter,""));
+        foreach (string handler in customHandlers)
+        {
+            Transform meleeHandler = GetHandler(owner.transform, side, WeaponType.melee, handler);
+            if (meleeHandler != null)
+            {
+                handlers.Add(meleeHandler);
+            }
+            Transform shooterHandler = GetHandler(owner.transform, side, WeaponType.shooter, handler);
+            if (shooterHandler != null)
+            {
+                handlers.Add(shooterHandler);
+            }
+        }
         return handlers;
     }
 
-    Transform GetHandler(Transform owner, EquipSide side, WeaponType type)
+    Transform GetHandler(Transform owner, EquipSide side, WeaponType type, string customHandler)
     {
         string foundHandler = "";
         string searchParent = "";
@@ -92,14 +112,21 @@ public class PUN_ItemManager : MonoBehaviour {
                 searchParent = "RightHandlers";
                 break;
         }
-        switch (type)
+        if (customHandler == "")
         {
-            case WeaponType.melee:
-                foundHandler = "meleeHandler";
-                break;
-            case WeaponType.shooter:
-                foundHandler = "defaultHandler";
-                break;
+            switch (type)
+            {
+                case WeaponType.melee:
+                    foundHandler = "meleeHandler";
+                    break;
+                case WeaponType.shooter:
+                    foundHandler = "defaultHandler";
+                    break;
+            }
+        }
+        else
+        {
+            foundHandler = customHandler;
         }
 
         Transform rootHandler = FindWithName(owner, searchParent);

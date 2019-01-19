@@ -32,6 +32,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] private int _syncBonesRate = 5;
     [Tooltip("How fast to move bones of network player version when it receives an update from the server.")]
     [SerializeField] private float _boneLerpRate = 90.0f;
+    [Space(10)]
     [Tooltip("This will sync the bone positions. Makes it so players on the network can see where this player is looking.")]
     [SerializeField] private bool _syncAnimations = true;
     [Tooltip("How fast to move to new position when the networked player receives and update from the server.")]
@@ -66,7 +67,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             if (GetComponent<vWeaponHolderManager>()) GetComponent<vWeaponHolderManager>().enabled = true;
             if (GetComponent<vGenericAction>()) GetComponent<vGenericAction>().enabled = true;
             if (GetComponent<vLadderAction>()) GetComponent<vLadderAction>().enabled = true;
-            if (GetComponent<vThrowObject>()) GetComponent<vThrowObject>().enabled = true;
+            //if (GetComponent<vThrowObject>()) GetComponent<vThrowObject>().enabled = true;
             if (GetComponent<vItemManager>()) GetComponent<vItemManager>().enabled = true;
             if (GetComponent<vLockOn>()) GetComponent<vLockOn>().enabled = true;
         }
@@ -321,6 +322,14 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
         correctBoneNeckRot = neck;
         correctBoneSpineRot = spine;
         correctBoneChestRot = chest;
+    }
+    [PunRPC]
+    public void SetLayerWeight(int Layer, float weight) //provided by "pararini" on invector forums, thanks!
+    {
+        if (GetComponent<Animator>())
+        {
+            GetComponent<Animator>().SetLayerWeight(Layer, weight);
+        }
     }
     //vShooterWeapon Functions
     [PunRPC]

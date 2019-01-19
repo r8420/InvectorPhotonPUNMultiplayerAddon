@@ -11,7 +11,7 @@ public class PUN_LobbyUI : MonoBehaviour {
     {
         PUN_NetworkManager nm = GameObject.FindObjectOfType<PUN_NetworkManager>();
         nm.SetPlayerName(_playerName);
-        nm.Connect();
+        nm.JoinLobby();
     }
     private void OnGUI()
     {
