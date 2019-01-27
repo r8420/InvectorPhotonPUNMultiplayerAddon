@@ -36,7 +36,11 @@ Follow these steps to setup photon to use this package properly.
 7. Follow the help box instructions
 8. When done make the player multiplayer compatible run the Invector/Multiplayer/Convert Scene To Multiplayer
   - Note: This allows you to select which objects to modify. It is suggested to leave the tick box checked to avoid any problems.
-
+9. Then run "Convert Prefabs To Multiplayer"
+10. When done there run "(Optional) Setup Example UI"
+11. Select the "Network Manager" Gameobject and delete "PUN_Lobby UI"
+  - This is legacy code that I forgot to remove from the latest release. Easy enough to delete the component though :)
+  
 You're Done!
 
 ## Menu Options
