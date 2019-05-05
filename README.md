@@ -1,5 +1,7 @@
 <img src=https://i.imgur.com/VU37vKp.png>
 
+The last version this plugin worked for is version 1.3.0 of invector. 
+
 # InvectorPhotonPUNMultiplayerAddon
 This is meant as a addon for the Unity Invector Package to add multiplayer support. 
 
