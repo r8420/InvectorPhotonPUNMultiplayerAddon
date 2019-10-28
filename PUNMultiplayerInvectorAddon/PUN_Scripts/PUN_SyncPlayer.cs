@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using Photon.Pun;
-using Invector.vCharacterController;            
+using Invector.vCharacterController;
 using Invector.vShooter;
 using Invector.vMelee;
 using Invector.vItemManager;
@@ -10,8 +10,7 @@ using System.Collections.Generic;
 
 [RequireComponent(typeof(PhotonView))]
 [RequireComponent(typeof(PhotonRigidbodyView))]
-public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
-{
+public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
     #region Sync Components
     private Transform local_head, local_neck, local_spine, local_chest = null;
     private Quaternion correctBoneHeadRot, correctBoneNeckRot, correctBoneSpineRot, correctBoneChestRot = Quaternion.identity;
@@ -46,16 +45,14 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     #endregion
 
     #region Initializations 
-    void Start()
-    {
+    void Start() {
         animator = GetComponent<Animator>();
         view = GetComponent<PhotonView>();
 
         if (GetComponent<PUN_ThirdPersonController>()) GetComponent<PUN_ThirdPersonController>().enabled = true;
         if (GetComponent<vHitDamageParticle>()) GetComponent<vHitDamageParticle>().enabled = true;
 
-        if (view.IsMine == true && PhotonNetwork.IsConnected == true)
-        {
+        if (view.IsMine == true && PhotonNetwork.IsConnected == true) {
             if (GetComponent<PUN_MeleeManager>()) GetComponent<PUN_MeleeManager>().enabled = true;
             if (GetComponent<PUN_MeleeCombatInput>()) GetComponent<PUN_MeleeCombatInput>().enabled = true;
             if (GetComponent<vMeleeManager>()) GetComponent<vMeleeManager>().enabled = true;
@@ -70,96 +67,68 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             //if (GetComponent<vThrowObject>()) GetComponent<vThrowObject>().enabled = true;
             if (GetComponent<vItemManager>()) GetComponent<vItemManager>().enabled = true;
             if (GetComponent<vLockOn>()) GetComponent<vLockOn>().enabled = true;
-        }
-        else
-        {
-            if (!string.IsNullOrEmpty(noneLocalTag))
-            {
+        } else {
+            if (!string.IsNullOrEmpty(noneLocalTag)) {
                 this.tag = noneLocalTag;
             }
             SetLayer();
             SetTags(animator.GetBoneTransform(HumanBodyBones.Hips).transform);
         }
-        if (_syncBones == true)
-        {
+        if (_syncBones == true) {
             SetBones();
         }
         BuildAnimatorParamsDict();
     }
-    void SetBones()
-    {
-        if (local_head == null)
-        {
-            try
-            {
+    void SetBones() {
+        if (local_head == null) {
+            try {
                 local_head = animator.GetBoneTransform(HumanBodyBones.Head).transform;
                 correctBoneHeadRot = local_head.localRotation;
-            }
-            catch (System.Exception e)
-            {
+            } catch (System.Exception e) {
                 Debug.LogError(e);
             }
         }
-        if (local_neck == null)
-        {
-            try
-            {
+        if (local_neck == null) {
+            try {
                 local_neck = animator.GetBoneTransform(HumanBodyBones.Neck).transform;
                 correctBoneNeckRot = local_neck.localRotation;
-            }
-            catch (System.Exception e)
-            {
+            } catch (System.Exception e) {
                 Debug.LogError(e);
             }
         }
-        if (local_spine == null)
-        {
-            try
-            {
+        if (local_spine == null) {
+            try {
                 local_spine = animator.GetBoneTransform(HumanBodyBones.Spine).transform;
                 correctBoneSpineRot = local_spine.localRotation;
-            }
-            catch (System.Exception e)
-            {
+            } catch (System.Exception e) {
                 Debug.LogError(e);
             }
         }
-        if (local_chest == null)
-        {
-            try
-            {
+        if (local_chest == null) {
+            try {
                 local_chest = animator.GetBoneTransform(HumanBodyBones.Chest).transform;
                 correctBoneChestRot = local_chest.localRotation;
-            }
-            catch (System.Exception e)
-            {
+            } catch (System.Exception e) {
                 Debug.LogError(e);
             }
         }
     }
-    void SetLayer()
-    {
+    void SetLayer() {
         gameObject.layer = _nonAuthoritativeLayer;
         animator.GetBoneTransform(HumanBodyBones.Hips).transform.parent.gameObject.layer = _nonAuthoritativeLayer;
     }
-    void SetTags(Transform target)
-    {
+    void SetTags(Transform target) {
         target.tag = noneLocalTag;
-        foreach(Transform child in target)
-        {
-            if (child.tag == "Untagged" || child.tag == "Player")
-            {
+        foreach (Transform child in target) {
+            if (child.tag == "Untagged" || child.tag == "Player") {
                 child.tag = noneLocalTag;
             }
             SetTags(child);
         }
     }
-    void BuildAnimatorParamsDict()
-    {
-        if (GetComponent<Animator>())
-        {
-            foreach (var param in GetComponent<Animator>().parameters)
-            {
+    void BuildAnimatorParamsDict() {
+        if (GetComponent<Animator>()) {
+            foreach (var param in GetComponent<Animator>().parameters) {
                 if (param.type != AnimatorControllerParameterType.Trigger) //Syncing triggers this way is unreliable, send trigger events via RPC
                 {
                     animParams.Add(param.name, param.type);
@@ -178,13 +147,10 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
 
-            if (_syncAnimations == true)
-            {
+            if (_syncAnimations == true) {
                 //Send Player Animations
-                foreach (var item in animParams)
-                {
-                    switch (item.Value)
-                    {
+                foreach (var item in animParams) {
+                    switch (item.Value) {
                         case AnimatorControllerParameterType.Bool:
                             stream.SendNext(animator.GetBool(item.Key));
                             break;
@@ -197,20 +163,16 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
                     }
                 }
             }
-        }
-        else  //Network player copies receiving data from server
-        {
+        } else  //Network player copies receiving data from server
+          {
             //Receive Player Position and rotation
             this.correctPlayerPos = (Vector3)stream.ReceiveNext();
             this.correctPlayerRot = (Quaternion)stream.ReceiveNext();
 
-            if (_syncAnimations == true)
-            {
+            if (_syncAnimations == true) {
                 //Receive Player Animations
-                foreach (var item in animParams)
-                {
-                    switch (item.Value)
-                    {
+                foreach (var item in animParams) {
+                    switch (item.Value) {
                         case AnimatorControllerParameterType.Bool:
                             animator.SetBool(item.Key, (bool)stream.ReceiveNext());
                             break;
@@ -227,97 +189,75 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
         //lag = Mathf.Abs((float)(PhotonNetwork.Time - info.timestamp));
     }
 
-    public void SendTrigger(string name)
-    {
+    public void SendTrigger(string name) {
         GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, name);
     }
 
     [PunRPC]
-    public void AnimMatchTarget(Vector3 matchPosition, Quaternion matchRotation, AvatarTarget target, MatchTargetWeightMask weightMask, float normalisedStartTime, float normalisedEndTime)
-    {
+    public void AnimMatchTarget(Vector3 matchPosition, Quaternion matchRotation, AvatarTarget target, MatchTargetWeightMask weightMask, float normalisedStartTime, float normalisedEndTime) {
         animator.MatchTarget(matchPosition, matchRotation, target, weightMask, normalisedStartTime, normalisedEndTime);
     }
     [PunRPC]
-    public void WeaponHolderSetActiveWeapon(bool value, int id)
-    {
-        foreach (vWeaponHolder holder in GetComponentsInChildren<vWeaponHolder>())
-        {
-            if (holder.itemID == id)
-            {
+    public void WeaponHolderSetActiveWeapon(bool value, int id) {
+        foreach (vWeaponHolder holder in GetComponentsInChildren<vWeaponHolder>()) {
+            if (holder.itemID == id) {
                 holder.SetActiveWeapon(value);
                 break;
             }
         }
     }
     [PunRPC]
-    public void WeaponHolderSetActiveHolder(bool value, int id)
-    {
-        foreach(vWeaponHolder holder in GetComponentsInChildren<vWeaponHolder>())
-        {
-            if (holder.itemID == id)
-            {
+    public void WeaponHolderSetActiveHolder(bool value, int id) {
+        foreach (vWeaponHolder holder in GetComponentsInChildren<vWeaponHolder>()) {
+            if (holder.itemID == id) {
                 holder.SetActiveHolder(value);
                 break;
             }
         }
     }
     [PunRPC]
-    public void OnDestroyWeapon(string weaponName, PUN_ItemManager.EquipSide side)
-    {
+    public void OnDestroyWeapon(string weaponName, PUN_ItemManager.EquipSide side) {
         FindObjectOfType<PUN_ItemManager>().DestroyWeapon(gameObject, weaponName, side);
     }
     [PunRPC]
-    public void SetRightWeapon(string weapon)
-    {
-        if (photonView.IsMine == false)
-        {
+    public void SetRightWeapon(string weapon) {
+        if (photonView.IsMine == false) {
             FindObjectOfType<PUN_ItemManager>().createItem(weapon, PUN_ItemManager.EquipSide.Right, gameObject);
         }
     }
     [PunRPC]
-    public void SetLeftWeapon(string weapon)
-    {
-        if (photonView.IsMine == false)
-        {
+    public void SetLeftWeapon(string weapon) {
+        if (photonView.IsMine == false) {
             FindObjectOfType<PUN_ItemManager>().createItem(weapon, PUN_ItemManager.EquipSide.Left, gameObject);
         }
     }
     [PunRPC]
-    public void ApplyDamage(string amount)
-    {
-        if (GetComponent<PhotonView>().IsMine == true)
-        {
+    public void ApplyDamage(string amount) {
+        if (GetComponent<PhotonView>().IsMine == true) {
             vDamage damage = JsonUtility.FromJson<vDamage>(amount);
             GetComponent<vThirdPersonController>().TakeDamage(damage);
         }
     }
     [PunRPC]
-    public void ResetTrigger(string name)
-    {
-        if (GetComponent<Animator>())
-        {
+    public void ResetTrigger(string name) {
+        if (GetComponent<Animator>()) {
             GetComponent<Animator>().ResetTrigger(name);
         }
     }
     [PunRPC]
-    public void SetTrigger(string name)
-    {
-        if (GetComponent<Animator>())
-        {
+    public void SetTrigger(string name) {
+        if (GetComponent<Animator>()) {
             GetComponent<Animator>().SetTrigger(name);
         }
     }
     [PunRPC]
-    public void CrossFadeInFixedTime(string name, float time)
-    {
-        if (GetComponent<Animator>())
-        {
+    public void CrossFadeInFixedTime(string name, float time) {
+        if (GetComponent<Animator>()) {
             GetComponent<Animator>().CrossFadeInFixedTime(name, time);
         }
     }
     [PunRPC]
-    public void SyncRotations(Quaternion head, Quaternion neck, Quaternion spine, Quaternion chest)
-    {
+    public void SyncRotations(Quaternion head, Quaternion neck, Quaternion spine, Quaternion chest) {
         correctBoneHeadRot = head;
         correctBoneNeckRot = neck;
         correctBoneSpineRot = spine;
@@ -326,135 +266,98 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     public void SetLayerWeight(int Layer, float weight) //provided by "pararini" on invector forums, thanks!
     {
-        if (GetComponent<Animator>())
-        {
+        if (GetComponent<Animator>()) {
             GetComponent<Animator>().SetLayerWeight(Layer, weight);
         }
     }
     //vShooterWeapon Functions
     [PunRPC]
-    public void SendShootEffect(string handler, string weaponName)
-    {
-       foreach(vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true))
-        {
-            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName)
-            {
-                weapon.ShootEffect(transform);
+    public void SendShootEffect(string handler, string weaponName) {
+        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
+            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
+                weapon.Shoot(transform);
             }
         }
     }
     [PunRPC]
-    public void SendShootEffect(string aimPos, string handler, string weaponName)
-    {
-        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true))
-        {
-            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName)
-            {
-                weapon.ShootEffect(JsonUtility.FromJson<Vector3>(aimPos), transform);
+    public void SendShootEffect(string aimPos, string handler, string weaponName) {
+        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
+            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
+                weapon.Shoot(JsonUtility.FromJson<Vector3>(aimPos), transform);
             }
         }
     }
     [PunRPC]
-    public void SendReloadEffect(string handler, string weaponName)
-    {
-        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true))
-        {
-            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName)
-            {
+    public void SendReloadEffect(string handler, string weaponName) {
+        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
+            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
                 weapon.ReloadEffect();
             }
         }
     }
     [PunRPC]
-    public void SendEmptyClipEffect(string handler, string weaponName)
-    {
-        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true))
-        {
-            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName)
-            {
-                weapon.EmptyClipEffect();
+    public void SendEmptyClipEffect(string handler, string weaponName) {
+        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
+            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
+                // weapon.EmptyClipEffect();
             }
         }
     }
     [PunRPC]
-    public void SendStopSound(string handler, string weaponName)
-    {
-        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true))
-        {
-            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName)
-            {
-                weapon.StopSound();
+    public void SendStopSound(string handler, string weaponName) {
+        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
+            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
+                // weapon.StopSound();
             }
         }
     }
     #endregion
 
     #region Local Actions Based on Server Changes
-    void Update()
-    {
-        if (GetComponent<PhotonView>().IsMine == false)
-        {
+    void Update() {
+        if (GetComponent<PhotonView>().IsMine == false) {
             float distance = Vector3.Distance(transform.position, this.correctPlayerPos);
-            if (distance < 2f)
-            {
+            if (distance < 2f) {
                 transform.position = Vector3.Lerp(transform.position, this.correctPlayerPos, Time.deltaTime * _positionLerpRate);
                 transform.rotation = Quaternion.Lerp(transform.rotation, this.correctPlayerRot, Time.deltaTime * _rotationLerpRate);
-            }
-            else
-            {
+            } else {
                 transform.position = this.correctPlayerPos;
                 transform.rotation = this.correctPlayerRot;
             }
         }
     }
-    void LateUpdate()
-    {
+    void LateUpdate() {
         SyncBoneRotation();
     }
-    void FixedUpdate()
-    {
-        if (_syncBones == true && GetComponent<PhotonView>().IsMine == true)
-        {
-            if (currentBoneRate == _syncBonesRate)
-            {
+    void FixedUpdate() {
+        if (_syncBones == true && GetComponent<PhotonView>().IsMine == true) {
+            if (currentBoneRate == _syncBonesRate) {
                 currentBoneRate = 0;
                 photonView.RPC("SyncRotations", RpcTarget.Others, local_head.localRotation, local_neck.localRotation, local_spine.localRotation, local_chest.localRotation);
-            }
-            else
-            {
+            } else {
                 currentBoneRate += 1;
             }
         }
     }
-    void SyncBoneRotation()
-    {
-        if (_syncBones == true && GetComponent<PhotonView>().IsMine == false)
-        {
+    void SyncBoneRotation() {
+        if (_syncBones == true && GetComponent<PhotonView>().IsMine == false) {
             local_head.localRotation = Quaternion.Lerp(local_head.localRotation, correctBoneHeadRot, Time.deltaTime * _boneLerpRate);
             local_neck.localRotation = Quaternion.Lerp(local_neck.localRotation, correctBoneNeckRot, Time.deltaTime * _boneLerpRate);
             local_spine.localRotation = Quaternion.Lerp(local_spine.localRotation, correctBoneSpineRot, Time.deltaTime * _boneLerpRate);
             local_chest.localRotation = Quaternion.Lerp(local_chest.localRotation, correctBoneChestRot, Time.deltaTime * _boneLerpRate);
         }
     }
-    bool notNan(Quaternion value)
-    {
-        if (!float.IsNaN(value.x) && !float.IsNaN(value.y) && !float.IsNaN(value.z) && !float.IsNaN(value.w))
-        {
+    bool notNan(Quaternion value) {
+        if (!float.IsNaN(value.x) && !float.IsNaN(value.y) && !float.IsNaN(value.z) && !float.IsNaN(value.w)) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
-    bool isQuaternionIdentity(Quaternion value)
-    {
-        if (value.ToString() == "(0.0, 0.0, 0.0, 1.0)")
-        {
+    bool isQuaternionIdentity(Quaternion value) {
+        if (value.ToString() == "(0.0, 0.0, 0.0, 1.0)") {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
