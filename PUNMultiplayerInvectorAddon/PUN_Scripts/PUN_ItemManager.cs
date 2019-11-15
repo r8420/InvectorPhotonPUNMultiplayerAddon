@@ -1,10 +1,22 @@
-﻿using Invector.vItemManager;
+﻿using Invector.vCharacterController.vActions;
+using Invector.vItemManager;
 using Invector.vShooter;
 using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PUN_ItemManager : MonoBehaviour {
+    //changed this to a singleton because FindObjectOfType is expensive
+    private static PUN_ItemManager _instance;
+    public static PUN_ItemManager Instance {
+        get {
+            if (_instance == null) {
+                _instance = FindObjectOfType<PUN_ItemManager>();
+            }
+            return _instance;
+        }
+    }
+
 
     [SerializeField] private vItemListData allItems = null;
     public enum EquipSide { Left, Right }
@@ -12,34 +24,26 @@ public class PUN_ItemManager : MonoBehaviour {
 
     private List<string> customHandlers = new List<string>();
 
-    public GameObject createItem(string itemName, EquipSide side, GameObject calledFrom)
-    {
+    public GameObject CreateItem(string itemName, EquipSide side, GameObject calledFrom) {
         itemName = itemName.Replace("(Clone)", "").Trim();
-        if (itemName[0] == 'v')
-        {
+        if (itemName[0] == 'v') {
             itemName = itemName.Remove(0, 1);
         }
         GameObject newitem = null;
         string temp = "";
-        foreach (var item in allItems.items)
-        {
+        foreach (var item in allItems.items) {
             temp = item.name;
-            if (temp[0] == 'v')
-            {
+            if (temp[0] == 'v') {
                 temp = temp.Remove(0, 1);
             }
-            if (temp == itemName)
-            {
+            if (temp == itemName) {
                 newitem = Instantiate(item.originalObject, this.transform.position, this.transform.rotation);
-                if (item.customHandler != "")
-                {
-                    if (!customHandlers.Contains(item.customHandler))
-                    {
+                if (item.customHandler != "") {
+                    if (!customHandlers.Contains(item.customHandler)) {
                         customHandlers.Add(item.customHandler);
                     }
                 }
-                switch (item.type)
-                {
+                switch (item.type) {
                     case vItemType.Shooter:
                         SetWeapon(newitem, calledFrom, side, WeaponType.shooter, item.customHandler);
                         break;
@@ -53,23 +57,46 @@ public class PUN_ItemManager : MonoBehaviour {
         return newitem;
     }
 
-    public void DestroyWeapon(GameObject owner, string weaponName, EquipSide side)
-    {
-        List<Transform> handlers = GetHandlers(owner,side);
+    public GameObject SetItem(int weaponViewId, EquipSide side, GameObject calledFrom) {
+        PhotonView weapon = null;
+        if (weaponViewId != -1) {
+            weapon = PhotonNetwork.GetPhotonView(weaponViewId);
+
+            if (weapon) {
+                vCollectableStandalone collectableStandalone = weapon.GetComponentInChildren<vCollectableStandalone>();
+                if (collectableStandalone != null) {
+                    if (collectableStandalone.targetEquipPoint != "") {
+                        if (!customHandlers.Contains(collectableStandalone.targetEquipPoint)) {
+                            customHandlers.Add(collectableStandalone.targetEquipPoint);
+                        }
+                    }
+                }
+
+                if (weapon.GetComponent<vShooterWeapon>()) {
+                    SetWeapon(weapon.gameObject, calledFrom, side, WeaponType.shooter, collectableStandalone.targetEquipPoint);
+                } else {
+                    SetWeapon(weapon.gameObject, calledFrom, side, WeaponType.melee, collectableStandalone.targetEquipPoint);
+                }
+                return weapon.gameObject;
+            }
+        }
+
+        return null;
+    }
+
+    public void DestroyWeapon(GameObject owner, string weaponName, EquipSide side) {
+        List<Transform> handlers = GetHandlers(owner, side);
         List<Transform> weapons = new List<Transform>();
-        foreach (Transform handler in handlers)
-        {
+        foreach (Transform handler in handlers) {
             weapons.Clear();
             weapons = FindAllWithName(handler, weaponName, weapons);
-            foreach(Transform weapon in weapons)
-            {
+            foreach (Transform weapon in weapons) {
                 Destroy(weapon.gameObject);
             }
         }
     }
 
-    void SetWeapon(GameObject weapon, GameObject owner, EquipSide side, WeaponType type, string customHandler)
-    {
+    void SetWeapon(GameObject weapon, GameObject owner, EquipSide side, WeaponType type, string customHandler) {
         //vShooterWeapon shooterWeapon = weapon.GetComponent<vShooterWeapon>();
         //PUN_ShooterManager manager = owner.GetComponent<PUN_ShooterManager>();
         Transform handler = GetHandler(owner.transform, side, type, customHandler);
@@ -78,33 +105,27 @@ public class PUN_ItemManager : MonoBehaviour {
         weapon.transform.SetParent(handler);
     }
 
-    List<Transform> GetHandlers(GameObject owner, EquipSide side)
-    {
+    List<Transform> GetHandlers(GameObject owner, EquipSide side) {
         List<Transform> handlers = new List<Transform>();
-        handlers.Add(GetHandler(owner.transform, side, WeaponType.melee,""));
-        handlers.Add(GetHandler(owner.transform, side, WeaponType.shooter,""));
-        foreach (string handler in customHandlers)
-        {
+        handlers.Add(GetHandler(owner.transform, side, WeaponType.melee, ""));
+        handlers.Add(GetHandler(owner.transform, side, WeaponType.shooter, ""));
+        foreach (string handler in customHandlers) {
             Transform meleeHandler = GetHandler(owner.transform, side, WeaponType.melee, handler);
-            if (meleeHandler != null)
-            {
+            if (meleeHandler != null) {
                 handlers.Add(meleeHandler);
             }
             Transform shooterHandler = GetHandler(owner.transform, side, WeaponType.shooter, handler);
-            if (shooterHandler != null)
-            {
+            if (shooterHandler != null) {
                 handlers.Add(shooterHandler);
             }
         }
         return handlers;
     }
 
-    Transform GetHandler(Transform owner, EquipSide side, WeaponType type, string customHandler)
-    {
+    Transform GetHandler(Transform owner, EquipSide side, WeaponType type, string customHandler) {
         string foundHandler = "";
         string searchParent = "";
-        switch (side)
-        {
+        switch (side) {
             case EquipSide.Left:
                 searchParent = "LeftHandlers";
                 break;
@@ -112,10 +133,8 @@ public class PUN_ItemManager : MonoBehaviour {
                 searchParent = "RightHandlers";
                 break;
         }
-        if (customHandler == "")
-        {
-            switch (type)
-            {
+        if (customHandler == "") {
+            switch (type) {
                 case WeaponType.melee:
                     foundHandler = "meleeHandler";
                     break;
@@ -123,9 +142,7 @@ public class PUN_ItemManager : MonoBehaviour {
                     foundHandler = "defaultHandler";
                     break;
             }
-        }
-        else
-        {
+        } else {
             foundHandler = customHandler;
         }
 
@@ -135,24 +152,18 @@ public class PUN_ItemManager : MonoBehaviour {
         return handler;
     }
 
-    Transform FindWithName(Transform root, string Name)
-    {
+    Transform FindWithName(Transform root, string Name) {
         Transform retVal = null;
-        if (root.name == Name)
-        {
+        if (root.name == Name) {
             retVal = root;
         }
-        foreach (Transform child in root)
-        {
-            if (child.gameObject.name == Name)
-            {
+        foreach (Transform child in root) {
+            if (child.gameObject.name == Name) {
                 retVal = child;
             }
-            if (retVal == null)
-            {
+            if (retVal == null) {
                 retVal = FindWithName(child, Name);
-                if (retVal != null)
-                {
+                if (retVal != null) {
                     break;
                 }
             }
@@ -161,16 +172,12 @@ public class PUN_ItemManager : MonoBehaviour {
         return retVal;
     }
 
-    List<Transform> FindAllWithName(Transform root, string Name, List<Transform> retVal)
-    {
-        if (root.name == Name)
-        {
+    List<Transform> FindAllWithName(Transform root, string Name, List<Transform> retVal) {
+        if (root.name == Name) {
             retVal.Add(root);
         }
-        foreach (Transform child in root)
-        {
-            if (child.gameObject.name == Name)
-            {
+        foreach (Transform child in root) {
+            if (child.gameObject.name == Name) {
                 retVal.Add(child);
             }
             retVal = FindAllWithName(child, Name, retVal);

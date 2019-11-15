@@ -1,36 +1,30 @@
-﻿using Invector.vShooter;
+﻿using Invector.vMelee;
+using Invector.vShooter;
 using Photon.Pun;
 using System.Collections;
 using UnityEngine;
 
-public class PUN_ShooterManager : vShooterManager
-{
-    public override void ReloadWeapon()
-    {
+public class PUN_ShooterManager : vShooterManager {
+    public override void ReloadWeapon() {
         var weapon = rWeapon ? rWeapon : lWeapon;
 
         if (!weapon || !weapon.gameObject.activeInHierarchy) return;
         UpdateTotalAmmo();
         bool primaryWeaponAnim = false;
 
-        if (weapon.ammoCount < weapon.clipSize && (weapon.isInfinityAmmo || WeaponHasAmmo()) && !weapon.autoReload)
-        {
+        if (weapon.ammoCount < weapon.clipSize && (weapon.isInfinityAmmo || WeaponHasAmmo()) && !weapon.autoReload) {
             onStartReloadWeapon.Invoke(weapon);
 
-            if (GetComponent<Animator>())
-            {
+            if (GetComponent<Animator>()) {
                 GetComponent<Animator>().SetInteger("ReloadID", GetReloadID());
                 GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Reload");
             }
             if (CurrentWeapon && CurrentWeapon.gameObject.activeInHierarchy) StartCoroutine(AddAmmoToWeapon(CurrentWeapon, CurrentWeapon.reloadTime));
             primaryWeaponAnim = true;
         }
-        if (weapon.secundaryWeapon && weapon.secundaryWeapon.ammoCount >= weapon.secundaryWeapon.clipSize && (weapon.secundaryWeapon.isInfinityAmmo || WeaponHasAmmo(true)) && !weapon.secundaryWeapon.autoReload)
-        {
-            if (!primaryWeaponAnim)
-            {
-                if (GetComponent<Animator>())
-                {
+        if (weapon.secundaryWeapon && weapon.secundaryWeapon.ammoCount >= weapon.secundaryWeapon.clipSize && (weapon.secundaryWeapon.isInfinityAmmo || WeaponHasAmmo(true)) && !weapon.secundaryWeapon.autoReload) {
+            if (!primaryWeaponAnim) {
+                if (GetComponent<Animator>()) {
                     primaryWeaponAnim = true;
                     GetComponent<Animator>().SetInteger("ReloadID", weapon.secundaryWeapon.reloadID);
                     GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Reload");
@@ -41,47 +35,51 @@ public class PUN_ShooterManager : vShooterManager
 
     }
 
-    protected override IEnumerator Recoil(float horizontal, float up)
-    {
+    protected override IEnumerator Recoil(float horizontal, float up) {
         yield return new WaitForSeconds(0.02f);
-        if (GetComponent<Animator>() && GetComponent<PhotonView>().IsMine == true)
-        {
+        if (GetComponent<Animator>() && GetComponent<PhotonView>().IsMine == true) {
             GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, "Shoot");
         }
         if (tpCamera != null) tpCamera.RotateCamera(horizontal, up);
     }
 
-    public override void SetLeftWeapon(GameObject weapon)
-    {
-        if (weapon != null)
-        {
+    public override void SetLeftWeapon(GameObject weapon) {
+        if (weapon != null) {
             base.SetLeftWeapon(weapon);
-            if (gameObject.GetComponent<PhotonView>().IsMine == true)
-            {
-                gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weapon.name);
+            if (gameObject.GetComponent<PhotonView>().IsMine == true) {
+                if (GetComponent<vCollectShooterMeleeControl>()) {
+                    gameObject.GetComponent<PhotonView>().RPC("SetLeftWeaponStandalone", RpcTarget.OthersBuffered, weapon.GetComponent<PhotonView>().ViewID);
+                } else {
+                    gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weapon.name);
+                }
+
             }
         }
     }
-    public override void SetRightWeapon(GameObject weapon)
-    {
-        if (weapon != null)
-        {
+    public override void SetRightWeapon(GameObject weapon) {
+        if (weapon != null) {
             base.SetRightWeapon(weapon);
-            if (gameObject.GetComponent<PhotonView>().IsMine == true)
-            {
-                gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.OthersBuffered, weapon.name);
+            if (gameObject.GetComponent<PhotonView>().IsMine == true) {
+                if (GetComponent<vCollectShooterMeleeControl>()) {
+                    gameObject.GetComponent<PhotonView>().RPC("SetRightWeaponStandalone", RpcTarget.OthersBuffered, weapon.GetComponent<PhotonView>().ViewID);
+                } else {
+                    gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.OthersBuffered, weapon.name);
+                }
+
             }
         }
     }
 
-    public override void OnDestroyWeapon(GameObject otherGameObject)
-    {
+    public override void OnDestroyWeapon(GameObject otherGameObject) {
         base.OnDestroyWeapon(otherGameObject);
-        if (otherGameObject != null)
-        {
-            if (gameObject.GetComponent<PhotonView>().IsMine == true)
-            {
-                GetComponent<PhotonView>().RPC("OnDestroyWeapon", RpcTarget.OthersBuffered, otherGameObject.name, PUN_ItemManager.EquipSide.Right);
+        if (otherGameObject != null) {
+            if (gameObject.GetComponent<PhotonView>().IsMine == true) {
+                if (GetComponent<vCollectShooterMeleeControl>()) {
+                    GetComponent<PhotonView>().RPC("OnDestroyWeaponStandalone", RpcTarget.OthersBuffered, otherGameObject.GetComponent<PhotonView>().ViewID, PUN_ItemManager.EquipSide.Right);
+                } else {
+                    GetComponent<PhotonView>().RPC("OnDestroyWeapon", RpcTarget.OthersBuffered, otherGameObject.name, PUN_ItemManager.EquipSide.Right);
+                }
+
             }
         }
     }

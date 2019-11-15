@@ -217,20 +217,40 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
     }
     [PunRPC]
     public void OnDestroyWeapon(string weaponName, PUN_ItemManager.EquipSide side) {
-        FindObjectOfType<PUN_ItemManager>().DestroyWeapon(gameObject, weaponName, side);
+        PUN_ItemManager.Instance.DestroyWeapon(gameObject, weaponName, side);
     }
     [PunRPC]
     public void SetRightWeapon(string weapon) {
         if (photonView.IsMine == false) {
-            FindObjectOfType<PUN_ItemManager>().createItem(weapon, PUN_ItemManager.EquipSide.Right, gameObject);
+            PUN_ItemManager.Instance.CreateItem(weapon, PUN_ItemManager.EquipSide.Right, gameObject);
         }
     }
     [PunRPC]
     public void SetLeftWeapon(string weapon) {
         if (photonView.IsMine == false) {
-            FindObjectOfType<PUN_ItemManager>().createItem(weapon, PUN_ItemManager.EquipSide.Left, gameObject);
+            PUN_ItemManager.Instance.CreateItem(weapon, PUN_ItemManager.EquipSide.Left, gameObject);
         }
     }
+
+    [PunRPC]
+    public void OnDestroyWeaponStandalone(int weaponViewId, PUN_ItemManager.EquipSide side) {
+        // PUN_ItemManager.Instance.DestroyWeapon(gameObject, weaponName, side);
+    }
+    [PunRPC]
+    public void SetRightWeaponStandalone(int weaponViewId) {
+        if (photonView.IsMine == false) {
+            PUN_ItemManager.Instance.SetItem(weaponViewId, PUN_ItemManager.EquipSide.Right, gameObject);
+        }
+    }
+    [PunRPC]
+    public void SetLeftWeaponStandalone(int weaponViewId) {
+        if (photonView.IsMine == false) {
+            PUN_ItemManager.Instance.SetItem(weaponViewId, PUN_ItemManager.EquipSide.Left, gameObject);
+        }
+    }
+
+
+
     [PunRPC]
     public void ApplyDamage(string amount) {
         if (GetComponent<PhotonView>().IsMine == true) {
