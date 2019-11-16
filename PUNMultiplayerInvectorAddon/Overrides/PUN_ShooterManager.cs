@@ -57,6 +57,7 @@ public class PUN_ShooterManager : vShooterManager {
         }
     }
     public override void SetRightWeapon(GameObject weapon) {
+        print("Set Weapon " + weapon.name);
         if (weapon != null) {
             base.SetRightWeapon(weapon);
             if (gameObject.GetComponent<PhotonView>().IsMine == true) {

@@ -26,6 +26,7 @@ public class PUN_ShooterWeapon : vShooterWeapon {
     public override void FinishReloadEffect() {
         base.ReloadEffect();
         if (PhotonNetwork.IsConnected == true && transform.root.GetComponent<PhotonView>() && transform.root.GetComponent<PhotonView>().IsMine == true) {
+            print("Finish Reload " + ammo);
             transform.root.GetComponent<PhotonView>().RPC("SendFinishReloadEffect", RpcTarget.Others, transform.parent.name, transform.name, ammo);
         }
     }

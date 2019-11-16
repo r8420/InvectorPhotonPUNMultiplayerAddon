@@ -318,6 +318,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
 
     [PunRPC]
     public void SendFinishReloadEffect(string handler, string weaponName, int ammo) {
+        print("reloaded weapon " + weaponName + "  " + handler + "  " + ammo);
         foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
             if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
                 weapon.FinishReloadEffect();
