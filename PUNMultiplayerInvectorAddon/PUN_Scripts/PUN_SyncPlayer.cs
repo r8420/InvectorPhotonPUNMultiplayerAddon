@@ -19,7 +19,8 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
     private Dictionary<string, AnimatorControllerParameterType> animParams = new Dictionary<string, AnimatorControllerParameterType>();
     private int currentBoneRate = 0;
 
-    PhotonView view;
+    // PhotonView photonView;
+    vThirdPersonController thirdPersonController;
     Animator animator;
     //private float lag = 0.0f;
     #endregion
@@ -47,12 +48,13 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
     #region Initializations 
     void Start() {
         animator = GetComponent<Animator>();
-        view = GetComponent<PhotonView>();
+        // photonView = photonView;
+        vThirdPersonController = GetComponent<vThirdPersonController>();
 
         if (GetComponent<PUN_ThirdPersonController>()) GetComponent<PUN_ThirdPersonController>().enabled = true;
         if (GetComponent<vHitDamageParticle>()) GetComponent<vHitDamageParticle>().enabled = true;
 
-        if (view.IsMine == true && PhotonNetwork.IsConnected == true) {
+        if (photonView.IsMine == true && PhotonNetwork.IsConnected == true) {
             if (GetComponent<PUN_MeleeManager>()) GetComponent<PUN_MeleeManager>().enabled = true;
             if (GetComponent<PUN_MeleeCombatInput>()) GetComponent<PUN_MeleeCombatInput>().enabled = true;
             if (GetComponent<vMeleeManager>()) GetComponent<vMeleeManager>().enabled = true;
@@ -146,6 +148,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
             //Send Player Position and rotation
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
+            stream.SendNext(thirdPersonController.currentHealth);
 
             if (_syncAnimations == true) {
                 //Send Player Animations
@@ -168,6 +171,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
             //Receive Player Position and rotation
             this.correctPlayerPos = (Vector3)stream.ReceiveNext();
             this.correctPlayerRot = (Quaternion)stream.ReceiveNext();
+            this.thirdPersonController.ChangeHealth((int)stream.ReceiveNext());
 
             if (_syncAnimations == true) {
                 //Receive Player Animations
@@ -190,7 +194,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
     }
 
     public void SendTrigger(string name) {
-        GetComponent<PhotonView>().RPC("SetTrigger", RpcTarget.All, name);
+        photonView.RPC("SetTrigger", RpcTarget.All, name);
     }
 
     [PunRPC]
@@ -253,7 +257,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
 
     // [PunRPC]
     // public void SendApplyDamage(string amount) {
-    //     if (GetComponent<PhotonView>().IsMine == true) {
+    //     if (photonView.IsMine == true) {
     //         vDamage damage = JsonUtility.FromJson<vDamage>(amount);
     //         print("Hit Remote ");
     //         GetComponent<vThirdPersonController>().TakeDamage(damage);
@@ -261,10 +265,12 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
     // }
     [PunRPC]
     public void ApplyDamage(string amount) {
-        // if (GetComponent<PhotonView>().IsMine == true) {
-        vDamage damage = JsonUtility.FromJson<vDamage>(amount);
         print("Hit Remote ");
-        GetComponent<vThirdPersonController>().TakeDamage(damage);
+
+        // if (photonView.IsMine == true) {
+        vDamage damage = JsonUtility.FromJson<vDamage>(amount);
+        GetComponent<PUN_ThirdPersonController>().TakeRemoteDamage(damage);
+        // GetComponent<vThirdPersonController>().TakeDamage(damage);
         // }
     }
 
@@ -339,6 +345,11 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
         }
     }
 
+    [PunRPC]
+    public void SendReviveCharacter() {
+
+    }
+
     // [PunRPC]
     // public void SendEmptyClipEffect(string handler, string weaponName) {
     //     foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
@@ -359,7 +370,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
 
     #region Local Actions Based on Server Changes
     void Update() {
-        if (GetComponent<PhotonView>().IsMine == false) {
+        if (photonView.IsMine == false) {
             float distance = Vector3.Distance(transform.position, this.correctPlayerPos);
             if (distance < 2f) {
                 transform.position = Vector3.Lerp(transform.position, this.correctPlayerPos, Time.deltaTime * _positionLerpRate);
@@ -374,7 +385,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
         SyncBoneRotation();
     }
     void FixedUpdate() {
-        if (_syncBones == true && GetComponent<PhotonView>().IsMine == true) {
+        if (_syncBones == true && photonView.IsMine == true) {
             if (currentBoneRate == _syncBonesRate) {
                 currentBoneRate = 0;
                 photonView.RPC("SyncRotations", RpcTarget.Others, local_head.localRotation, local_neck.localRotation, local_spine.localRotation, local_chest.localRotation);
@@ -384,7 +395,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
         }
     }
     void SyncBoneRotation() {
-        if (_syncBones == true && GetComponent<PhotonView>().IsMine == false) {
+        if (_syncBones == true && photonView.IsMine == false) {
             local_head.localRotation = Quaternion.Lerp(local_head.localRotation, correctBoneHeadRot, Time.deltaTime * _boneLerpRate);
             local_neck.localRotation = Quaternion.Lerp(local_neck.localRotation, correctBoneNeckRot, Time.deltaTime * _boneLerpRate);
             local_spine.localRotation = Quaternion.Lerp(local_spine.localRotation, correctBoneSpineRot, Time.deltaTime * _boneLerpRate);
