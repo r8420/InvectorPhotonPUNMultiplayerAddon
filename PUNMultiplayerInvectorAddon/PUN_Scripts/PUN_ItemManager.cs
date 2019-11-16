@@ -97,12 +97,17 @@ public class PUN_ItemManager : MonoBehaviour {
     }
 
     void SetWeapon(GameObject weapon, GameObject owner, EquipSide side, WeaponType type, string customHandler) {
-        //vShooterWeapon shooterWeapon = weapon.GetComponent<vShooterWeapon>();
-        //PUN_ShooterManager manager = owner.GetComponent<PUN_ShooterManager>();
+        vShooterWeaponBase shooterWeapon = weapon.GetComponent<vShooterWeaponBase>();
+        PUN_ShooterManager shooterManager = owner.GetComponent<PUN_ShooterManager>();
+
         Transform handler = GetHandler(owner.transform, side, type, customHandler);
         weapon.transform.position = handler.position;
         weapon.transform.rotation = handler.rotation;
         weapon.transform.SetParent(handler);
+
+        if (shooterWeapon && shooterManager) {
+            shooterWeapon.hitLayer = shooterManager.damageLayer;
+        }
     }
 
     List<Transform> GetHandlers(GameObject owner, EquipSide side) {

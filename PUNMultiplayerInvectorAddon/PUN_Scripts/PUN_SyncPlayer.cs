@@ -251,13 +251,24 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
 
 
 
+    // [PunRPC]
+    // public void SendApplyDamage(string amount) {
+    //     if (GetComponent<PhotonView>().IsMine == true) {
+    //         vDamage damage = JsonUtility.FromJson<vDamage>(amount);
+    //         print("Hit Remote ");
+    //         GetComponent<vThirdPersonController>().TakeDamage(damage);
+    //     }
+    // }
     [PunRPC]
     public void ApplyDamage(string amount) {
-        if (GetComponent<PhotonView>().IsMine == true) {
-            vDamage damage = JsonUtility.FromJson<vDamage>(amount);
-            GetComponent<vThirdPersonController>().TakeDamage(damage);
-        }
+        // if (GetComponent<PhotonView>().IsMine == true) {
+        vDamage damage = JsonUtility.FromJson<vDamage>(amount);
+        print("Hit Remote ");
+        GetComponent<vThirdPersonController>().TakeDamage(damage);
+        // }
     }
+
+
     [PunRPC]
     public void ResetTrigger(string name) {
         if (GetComponent<Animator>()) {
@@ -328,22 +339,22 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
         }
     }
 
-    [PunRPC]
-    public void SendEmptyClipEffect(string handler, string weaponName) {
-        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
-            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
-                // weapon.EmptyClipEffect();
-            }
-        }
-    }
-    [PunRPC]
-    public void SendStopSound(string handler, string weaponName) {
-        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
-            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
-                // weapon.StopSound();
-            }
-        }
-    }
+    // [PunRPC]
+    // public void SendEmptyClipEffect(string handler, string weaponName) {
+    //     foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
+    //         if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
+    //             // weapon.EmptyClipEffect();
+    //         }
+    //     }
+    // }
+    // [PunRPC]
+    // public void SendStopSound(string handler, string weaponName) {
+    //     foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
+    //         if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
+    //             // weapon.StopSound();
+    //         }
+    //     }
+    // }
     #endregion
 
     #region Local Actions Based on Server Changes
@@ -380,7 +391,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
             local_chest.localRotation = Quaternion.Lerp(local_chest.localRotation, correctBoneChestRot, Time.deltaTime * _boneLerpRate);
         }
     }
-    bool notNan(Quaternion value) {
+    bool NotNan(Quaternion value) {
         if (!float.IsNaN(value.x) && !float.IsNaN(value.y) && !float.IsNaN(value.z) && !float.IsNaN(value.w)) {
             return true;
         } else {
