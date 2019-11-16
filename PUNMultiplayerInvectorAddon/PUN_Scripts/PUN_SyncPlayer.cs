@@ -317,12 +317,13 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
     }
 
     [PunRPC]
-    public void SendFinishReloadEffect(string handler, string weaponName, int ammo) {
-        print("reloaded weapon " + weaponName + "  " + handler + "  " + ammo);
+    public void SendFinishReloadEffect(string handler, string weaponName, int ammoCount) {
+        print("reloaded weapon " + weaponName + "  " + handler + "  " + ammoCount);
         foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
             if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
                 weapon.FinishReloadEffect();
-                weapon.ammo = ammo;
+                // weapon.ammoCount = ammoCount;
+                weapon.AddAmmo(ammoCount);
             }
         }
     }
