@@ -23,6 +23,12 @@ public class PUN_ShooterWeapon : vShooterWeapon {
             transform.root.GetComponent<PhotonView>().RPC("SendReloadEffect", RpcTarget.Others, transform.parent.name, transform.name);
         }
     }
+    public override void FinishReloadEffect() {
+        base.ReloadEffect();
+        if (PhotonNetwork.IsConnected == true && transform.root.GetComponent<PhotonView>() && transform.root.GetComponent<PhotonView>().IsMine == true) {
+            transform.root.GetComponent<PhotonView>().RPC("SendFinishReloadEffect", RpcTarget.Others, transform.parent.name, transform.name, ammo);
+        }
+    }
     protected override void EmptyClipEffect() {
         base.EmptyClipEffect();
         if (PhotonNetwork.IsConnected == true && transform.root.GetComponent<PhotonView>() && transform.root.GetComponent<PhotonView>().IsMine == true) {

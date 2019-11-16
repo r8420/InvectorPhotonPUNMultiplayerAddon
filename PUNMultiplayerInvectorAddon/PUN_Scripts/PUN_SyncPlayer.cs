@@ -315,6 +315,17 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
             }
         }
     }
+
+    [PunRPC]
+    public void SendFinishReloadEffect(string handler, string weaponName, int ammo) {
+        foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
+            if (weapon.transform.parent.transform.name == handler && weapon.transform.name == weaponName) {
+                weapon.FinishReloadEffect();
+                weapon.ammo = ammo;
+            }
+        }
+    }
+
     [PunRPC]
     public void SendEmptyClipEffect(string handler, string weaponName) {
         foreach (vShooterWeapon weapon in GetComponentsInChildren<vShooterWeapon>(true)) {
