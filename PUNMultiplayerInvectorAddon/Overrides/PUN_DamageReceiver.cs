@@ -13,21 +13,22 @@ public class PUN_DamageReceiver : vDamageReceiver {
             var _damage = new vDamage(damage);
             var value = (float)_damage.damageValue;
             _damage.damageValue = (int)(value * damageMultiplier);
-            if (ragdoll.gameObject.transform.root.GetComponent<PhotonView>().IsMine == true) {
-                ragdoll.gameObject.ApplyDamage(_damage, attacker);
-            } else if (healthController != null) {
-                if (healthController.gameObject.transform.root.GetComponent<PhotonView>().IsMine == false) {
-                    healthController.gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(_damage));
-                } else {
-                    transform.root.GetComponent<vThirdPersonController>().TakeDamage(damage);
-                }
-            } else if (gameObject.transform.root.GetComponent<PhotonView>()) {
-                if (gameObject.transform.root.GetComponent<PhotonView>().IsMine == false) {
-                    gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(_damage));
-                } else {
-                    transform.root.GetComponent<vThirdPersonController>().TakeDamage(damage);
-                }
-            }
+            // if (ragdoll.gameObject.transform.root.GetComponent<PhotonView>().IsMine == true) {
+            //     ragdoll.gameObject.ApplyDamage(_damage, attacker);
+            // } else if (healthController != null) {
+            //     if (healthController.gameObject.transform.root.GetComponent<PhotonView>().IsMine == false) {
+            //         healthController.gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(_damage));
+            //     } else {
+            //         transform.root.GetComponent<vThirdPersonController>().TakeDamage(damage);
+            //     }
+            // } else if (gameObject.transform.root.GetComponent<PhotonView>()) {
+            //     if (gameObject.transform.root.GetComponent<PhotonView>().IsMine == false) {
+            //         gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(_damage));
+            //     } else {
+            //         transform.root.GetComponent<vThirdPersonController>().TakeDamage(damage);
+            //     }
+            // }
+            ragdoll.gameObject.ApplyDamage(_damage, attacker);
             onReceiveDamage.Invoke(_damage);
         } else {
             if (healthController == null)
@@ -38,21 +39,22 @@ public class PUN_DamageReceiver : vDamageReceiver {
                 var value = (float)_damage.damageValue;
                 _damage.damageValue = (int)(value * damageMultiplier);
                 try {
-                    if (healthController.gameObject.transform.root.GetComponent<PhotonView>().IsMine == true) {
-                        healthController.gameObject.ApplyDamage(_damage, attacker);
-                    } else if (healthController != null) {
-                        if (healthController.gameObject.transform.root.GetComponent<PhotonView>().IsMine == false) {
-                            healthController.gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(_damage));
-                        } else {
-                            transform.root.GetComponent<vThirdPersonController>().TakeDamage(damage);
-                        }
-                    } else if (gameObject.transform.root.GetComponent<PhotonView>()) {
-                        if (gameObject.transform.root.GetComponent<PhotonView>().IsMine == false) {
-                            gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(_damage));
-                        } else {
-                            transform.root.GetComponent<vThirdPersonController>().TakeDamage(damage);
-                        }
-                    }
+                    // if (healthController.gameObject.transform.root.GetComponent<PhotonView>().IsMine == true) {
+                    //     healthController.gameObject.ApplyDamage(_damage, attacker);
+                    // } else if (healthController != null) {
+                    //     if (healthController.gameObject.transform.root.GetComponent<PhotonView>().IsMine == false) {
+                    //         healthController.gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(_damage));
+                    //     } else {
+                    //         transform.root.GetComponent<vThirdPersonController>().TakeDamage(damage);
+                    //     }
+                    // } else if (gameObject.transform.root.GetComponent<PhotonView>()) {
+                    //     if (gameObject.transform.root.GetComponent<PhotonView>().IsMine == false) {
+                    //         gameObject.transform.root.GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(_damage));
+                    //     } else {
+                    //         transform.root.GetComponent<vThirdPersonController>().TakeDamage(damage);
+                    //     }
+                    // }
+                    healthController.gameObject.ApplyDamage(_damage, attacker);
                     onReceiveDamage.Invoke(_damage);
                 } catch {
                     this.enabled = false;

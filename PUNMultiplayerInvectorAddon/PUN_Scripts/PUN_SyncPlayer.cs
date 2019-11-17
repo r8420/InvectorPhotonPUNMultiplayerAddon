@@ -49,7 +49,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
     void Start() {
         animator = GetComponent<Animator>();
         // photonView = photonView;
-        vThirdPersonController = GetComponent<vThirdPersonController>();
+        thirdPersonController = GetComponent<vThirdPersonController>();
 
         if (GetComponent<PUN_ThirdPersonController>()) GetComponent<PUN_ThirdPersonController>().enabled = true;
         if (GetComponent<vHitDamageParticle>()) GetComponent<vHitDamageParticle>().enabled = true;
@@ -148,7 +148,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
             //Send Player Position and rotation
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
-            stream.SendNext(thirdPersonController.currentHealth);
+            stream.SendNext((int)thirdPersonController.currentHealth);
 
             if (_syncAnimations == true) {
                 //Send Player Animations

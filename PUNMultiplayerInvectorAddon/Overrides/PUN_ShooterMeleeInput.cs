@@ -133,11 +133,13 @@ public class PUN_ShooterMeleeInput : vShooterMeleeInput {
         }
         //apply damage
         damage.hitReaction = !isBlocking;
-        if (GetComponent<PhotonView>().IsMine == true) {
-            cc.TakeDamage(damage);
-        } else {
-            GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(damage));
-        }
+        cc.TakeDamage(damage);
+        // if (GetComponent<PhotonView>().IsMine == true) {
+        //     cc.TakeDamage(damage);
+        // } else {
+        //     GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(damage));
+        // }
+
     }
 
     protected override void UpdateAimHud() {

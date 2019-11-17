@@ -1,11 +1,8 @@
 ﻿using Invector;
 using Invector.vCharacterController;
 using Invector.vEventSystems;
-using Invector.vMelee;
 using Photon.Pun;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+
 
 public class PUN_MeleeCombatInput : vMeleeCombatInput {
     public override void OnEnableAttack() {
@@ -45,13 +42,15 @@ public class PUN_MeleeCombatInput : vMeleeCombatInput {
             cc.currentStaminaRecoveryDelay = damage.staminaRecoveryDelay;
             cc.currentStamina -= damage.staminaBlockCost;
         }
-        if (GetComponent<PhotonView>().IsMine == true) {
-            // apply damage
-            damage.hitReaction = !isBlocking;
-            cc.TakeDamage(damage);
-        } else if (GetComponent<PhotonView>().IsMine == false) {
-            GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(damage));
-        }
+
+        cc.TakeDamage(damage);
+        // if (GetComponent<PhotonView>().IsMine == true) {
+        //     // apply damage
+        //     damage.hitReaction = !isBlocking;
+        //     cc.TakeDamage(damage);
+        // } else if (GetComponent<PhotonView>().IsMine == false) {
+        //     GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(damage));
+        // }
     }
 
 }
