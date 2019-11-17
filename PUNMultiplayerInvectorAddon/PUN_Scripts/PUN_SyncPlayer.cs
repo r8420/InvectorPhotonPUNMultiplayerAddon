@@ -7,6 +7,7 @@ using Invector.vItemManager;
 using Invector.vCharacterController.vActions;
 using Invector;
 using System.Collections.Generic;
+using Invector.vEventSystems;
 
 [RequireComponent(typeof(PhotonView))]
 [RequireComponent(typeof(PhotonRigidbodyView))]
@@ -269,9 +270,13 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
 
         // if (photonView.IsMine == true) {
         vDamage damage = JsonUtility.FromJson<vDamage>(amount);
-        GetComponent<PUN_ThirdPersonController>().TakeRemoteDamage(damage);
+        // GetComponent<PUN_ThirdPersonController>().TakeRemoteDamage(damage);
         // GetComponent<vThirdPersonController>().TakeDamage(damage);
         // }
+
+        var attackReceiver = GetComponent<vIAttackReceiver>();
+        if (attackReceiver != null) attackReceiver.OnReceiveAttack(damage, null);
+        else gameObject.ApplyDamage(damage);
     }
 
 

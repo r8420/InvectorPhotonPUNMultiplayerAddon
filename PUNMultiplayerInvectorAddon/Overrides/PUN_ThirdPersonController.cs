@@ -16,20 +16,20 @@ public class PUN_ThirdPersonController : vThirdPersonController {
 
     }
 
-    public override void TakeDamage(vDamage damage) {
+    // public override void TakeDamage(vDamage damage) {
 
-        if (GetComponent<PhotonView>().IsMine == true) {
-            base.TakeDamage(damage);
-            GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(damage));
-        } else {
-            // onReceiveDamage.Invoke(damage);
-        }
+    //     if (GetComponent<PhotonView>().IsMine == true) {
+    //         base.TakeDamage(damage);
+    //         GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(damage));
+    //     } else {
+    //         // onReceiveDamage.Invoke(damage);
+    //     }
 
-    }
+    // }
 
-    public void TakeRemoteDamage(vDamage damage) {
-        base.TakeDamage(damage);
-    }
+    // public void TakeRemoteDamage(vDamage damage) {
+    //     base.TakeDamage(damage);
+    // }
 
     protected override void TriggerDamageReaction(vDamage damage) {
         if (animator != null && animator.enabled && !damage.activeRagdoll && currentHealth > 0) {
