@@ -1,4 +1,5 @@
-﻿using Invector.vMelee;
+﻿using Invector.vCharacterController.vActions;
+using Invector.vMelee;
 using Invector.vShooter;
 using Photon.Pun;
 using System.Collections;
@@ -47,7 +48,7 @@ public class PUN_ShooterManager : vShooterManager {
         if (weapon != null) {
             base.SetLeftWeapon(weapon);
             if (gameObject.GetComponent<PhotonView>().IsMine == true) {
-                if (GetComponent<vCollectShooterMeleeControl>()) {
+                if (weapon.GetComponentInChildren<vCollectableStandalone>(true)) {
                     gameObject.GetComponent<PhotonView>().RPC("SetLeftWeaponStandalone", RpcTarget.OthersBuffered, weapon.GetComponent<PhotonView>().ViewID);
                 } else {
                     gameObject.GetComponent<PhotonView>().RPC("SetLeftWeapon", RpcTarget.OthersBuffered, weapon.name);
@@ -61,7 +62,7 @@ public class PUN_ShooterManager : vShooterManager {
         if (weapon != null) {
             base.SetRightWeapon(weapon);
             if (gameObject.GetComponent<PhotonView>().IsMine == true) {
-                if (GetComponent<vCollectShooterMeleeControl>()) {
+                if (weapon.GetComponentInChildren<vCollectableStandalone>(true)) {
                     gameObject.GetComponent<PhotonView>().RPC("SetRightWeaponStandalone", RpcTarget.OthersBuffered, weapon.GetComponent<PhotonView>().ViewID);
                 } else {
                     gameObject.GetComponent<PhotonView>().RPC("SetRightWeapon", RpcTarget.OthersBuffered, weapon.name);

@@ -6,11 +6,23 @@ using Photon.Pun;
 public class PUN_ThirdPersonController : vThirdPersonController {
     private float idleCount;
 
+
+    public override void ResetHealth() {
+        base.ResetHealth();
+
+        if (GetComponent<PhotonView>().IsMine == true) {
+            GetComponent<PhotonView>().RPC("SendReviveCharacter", RpcTarget.Others);
+        }
+
+    }
+
     public override void TakeDamage(vDamage damage) {
 
         if (GetComponent<PhotonView>().IsMine == true) {
             base.TakeDamage(damage);
             GetComponent<PhotonView>().RPC("ApplyDamage", RpcTarget.Others, JsonUtility.ToJson(damage));
+        } else {
+            // onReceiveDamage.Invoke(damage);
         }
 
     }

@@ -347,7 +347,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
 
     [PunRPC]
     public void SendReviveCharacter() {
-
+        thirdPersonController.ResetHealth();
     }
 
     // [PunRPC]
