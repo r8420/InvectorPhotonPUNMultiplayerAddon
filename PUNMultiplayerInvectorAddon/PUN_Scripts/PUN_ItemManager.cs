@@ -106,7 +106,13 @@ public class PUN_ItemManager : MonoBehaviour {
         weapon.transform.SetParent(handler);
 
         if (shooterWeapon && shooterManager) {
-            shooterWeapon.hitLayer = shooterManager.damageLayer;
+            // shooterWeapon.hitLayer = shooterManager.damageLayer;
+
+            if (side == EquipSide.Left) {
+                shooterManager.SetLeftWeapon(shooterWeapon.gameObject);
+            } else {
+                shooterManager.SetRightWeapon(shooterWeapon.gameObject);
+            }
         }
     }
 

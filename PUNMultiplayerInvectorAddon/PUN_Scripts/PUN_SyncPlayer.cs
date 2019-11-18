@@ -164,7 +164,7 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
                 stream.SendNext(shooterMeleeInput.isAiming);
                 stream.SendNext(shooterMeleeInput.aimPosition);
                 stream.SendNext(shooterMeleeInput.aimTimming);
-                // stream.SendNext(shooterMeleeInput.aimPosition);
+                stream.SendNext(shooterMeleeInput.aimConditions);
             }
 
 
@@ -190,11 +190,16 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
             this.correctPlayerPos = (Vector3)stream.ReceiveNext();
             this.correctPlayerRot = (Quaternion)stream.ReceiveNext();
             this.thirdPersonController.ChangeHealth((int)stream.ReceiveNext());
+
+            // is crouching
+            // custom action
+            // is reloading
+            // isequipping
             if (isShooterPlayer) {
                 shooterMeleeInput.isAiming = (bool)stream.ReceiveNext();
                 shooterMeleeInput.aimPosition = (Vector3)stream.ReceiveNext();
                 shooterMeleeInput.aimTimming = (float)stream.ReceiveNext();
-                // shooterMeleeInput.aimPosition = (Vector3)stream.ReceiveNext();
+                shooterMeleeInput.aimConditions = (bool)stream.ReceiveNext();
             }
 
             if (_syncAnimations == true) {
