@@ -13,6 +13,47 @@ public class PUN_ShooterMeleeInput : vShooterMeleeInput {
         base.Start();
     }
 
+    protected override void Update() {
+        if (GetComponent<PhotonView>().IsMine) {
+            base.Update();
+        } else {
+
+        }
+    }
+
+    protected override void FixedUpdate() {
+        if (GetComponent<PhotonView>().IsMine) {
+            base.FixedUpdate();
+        } else {
+
+        }
+    }
+
+    protected override void LateUpdate() {
+        if (GetComponent<PhotonView>().IsMine) {
+            base.LateUpdate();
+        } else {
+
+        }
+    }
+
+    protected override void UpdateAimBehaviour() {
+        // UpdateAimPosition();
+        // UpdateHeadTrack();
+        if (shooterManager && CurrentActiveWeapon) {
+            UpdateIKAdjust(shooterManager.IsLeftWeapon);
+            RotateAimArm(shooterManager.IsLeftWeapon);
+            RotateAimHand(shooterManager.IsLeftWeapon);
+            UpdateArmsIK(shooterManager.IsLeftWeapon);
+
+        }
+        // if (isUsingScopeView && controlAimCanvas && controlAimCanvas.scopeCamera) UpdateAimPosition();
+        // CheckAimConditions();
+        // UpdateAimHud();
+        // DoShots();
+    }
+
+
     protected override void UpdateMeleeAnimations() //provided by "pararini" on invector forums, thanks!
     {
         // disable the onlyarms layer and run the melee methods if the character is not using any shooter weapon

@@ -22,6 +22,10 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
 
     // PhotonView photonView;
     vThirdPersonController thirdPersonController;
+    vShooterMeleeInput shooterMeleeInput;
+    bool isShooterPlayer;
+
+
     Animator animator;
     //private float lag = 0.0f;
     #endregion
@@ -47,10 +51,16 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
     #endregion
 
     #region Initializations 
+    void Awake() {
+        thirdPersonController = GetComponent<vThirdPersonController>();
+        shooterMeleeInput = GetComponent<vShooterMeleeInput>();
+        isShooterPlayer = shooterMeleeInput != null;
+    }
+
     void Start() {
         animator = GetComponent<Animator>();
         // photonView = photonView;
-        thirdPersonController = GetComponent<vThirdPersonController>();
+
 
         if (GetComponent<PUN_ThirdPersonController>()) GetComponent<PUN_ThirdPersonController>().enabled = true;
         if (GetComponent<vHitDamageParticle>()) GetComponent<vHitDamageParticle>().enabled = true;
@@ -150,6 +160,10 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
             stream.SendNext((int)thirdPersonController.currentHealth);
+            if (isShooterPlayer) {
+                stream.SendNext(shooterMeleeInput.aimPosition);
+            }
+
 
             if (_syncAnimations == true) {
                 //Send Player Animations
@@ -173,6 +187,9 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
             this.correctPlayerPos = (Vector3)stream.ReceiveNext();
             this.correctPlayerRot = (Quaternion)stream.ReceiveNext();
             this.thirdPersonController.ChangeHealth((int)stream.ReceiveNext());
+            if (isShooterPlayer) {
+                shooterMeleeInput.aimPosition = (Vector3)stream.ReceiveNext();
+            }
 
             if (_syncAnimations == true) {
                 //Receive Player Animations
