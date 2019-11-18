@@ -3,6 +3,8 @@ using Invector.vShooter;                //to access "vShooterMeleeInput"
 using Invector;                        //to access "vDamage"
 using Invector.vEventSystems;          //to access "vIMeleeFighter"
 using Photon.Pun;
+using System.Collections;
+using Invector.vCharacterController;
 
 public class PUN_ShooterMeleeInput : vShooterMeleeInput {
     protected override void Start() {
@@ -11,6 +13,21 @@ public class PUN_ShooterMeleeInput : vShooterMeleeInput {
         //    GameObject.FindObjectOfType<vControlAimCanvas>().GetComponent<vControlAimCanvas>().SetCharacterController(GetComponent<M_ThirdPersonController>());
         //}
         base.Start();
+    }
+
+    protected override IEnumerator CharacterInit() {
+        if (GetComponent<PhotonView>().IsMine == false) {
+            yield break;
+        }
+        yield return new WaitForEndOfFrame();
+        if (tpCamera == null) {
+            tpCamera = FindObjectOfType<Invector.vCamera.vThirdPersonCamera>();
+            if (tpCamera && tpCamera.target != transform) tpCamera.SetMainTarget(this.transform);
+        }
+        if (hud == null && vHUDController.instance != null) {
+            hud = vHUDController.instance;
+            hud.Init(cc);
+        }
     }
 
     protected override void Update() {

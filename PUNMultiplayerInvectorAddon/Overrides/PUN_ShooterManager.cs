@@ -6,6 +6,13 @@ using System.Collections;
 using UnityEngine;
 
 public class PUN_ShooterManager : vShooterManager {
+
+    void Awake() {
+        if (!GetComponent<PhotonView>().IsMine) {
+            useAmmoDisplay = false;
+        }
+    }
+
     public override void ReloadWeapon() {
         var weapon = rWeapon ? rWeapon : lWeapon;
 

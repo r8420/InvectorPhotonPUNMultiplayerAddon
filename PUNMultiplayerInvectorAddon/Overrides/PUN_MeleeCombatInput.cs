@@ -1,10 +1,27 @@
-﻿using Invector;
+﻿using System.Collections;
+using Invector;
 using Invector.vCharacterController;
 using Invector.vEventSystems;
 using Photon.Pun;
-
+using UnityEngine;
 
 public class PUN_MeleeCombatInput : vMeleeCombatInput {
+
+    protected override IEnumerator CharacterInit() {
+        if (GetComponent<PhotonView>().IsMine == false) {
+            yield break;
+        }
+        yield return new WaitForEndOfFrame();
+        if (tpCamera == null) {
+            tpCamera = FindObjectOfType<Invector.vCamera.vThirdPersonCamera>();
+            if (tpCamera && tpCamera.target != transform) tpCamera.SetMainTarget(this.transform);
+        }
+        if (hud == null && vHUDController.instance != null) {
+            hud = vHUDController.instance;
+            hud.Init(cc);
+        }
+    }
+
     public override void OnEnableAttack() {
         if (GetComponent<PhotonView>().IsMine == false) return;
         base.OnEnableAttack();
