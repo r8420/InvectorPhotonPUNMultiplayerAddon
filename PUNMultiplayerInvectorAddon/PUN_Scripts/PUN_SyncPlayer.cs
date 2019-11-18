@@ -161,7 +161,10 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
             stream.SendNext(transform.rotation);
             stream.SendNext((int)thirdPersonController.currentHealth);
             if (isShooterPlayer) {
+                stream.SendNext(shooterMeleeInput.isAiming);
                 stream.SendNext(shooterMeleeInput.aimPosition);
+                stream.SendNext(shooterMeleeInput.aimTimming);
+                // stream.SendNext(shooterMeleeInput.aimPosition);
             }
 
 
@@ -188,7 +191,10 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
             this.correctPlayerRot = (Quaternion)stream.ReceiveNext();
             this.thirdPersonController.ChangeHealth((int)stream.ReceiveNext());
             if (isShooterPlayer) {
+                shooterMeleeInput.isAiming = (bool)stream.ReceiveNext();
                 shooterMeleeInput.aimPosition = (Vector3)stream.ReceiveNext();
+                shooterMeleeInput.aimTimming = (float)stream.ReceiveNext();
+                // shooterMeleeInput.aimPosition = (Vector3)stream.ReceiveNext();
             }
 
             if (_syncAnimations == true) {

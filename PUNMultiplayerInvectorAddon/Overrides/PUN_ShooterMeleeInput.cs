@@ -33,11 +33,11 @@ public class PUN_ShooterMeleeInput : vShooterMeleeInput {
         if (GetComponent<PhotonView>().IsMine) {
             base.LateUpdate();
         } else {
-
+            UpdateArmAim();
         }
     }
 
-    protected override void UpdateAimBehaviour() {
+    protected void UpdateArmAim() {
         // UpdateAimPosition();
         // UpdateHeadTrack();
         if (shooterManager && CurrentActiveWeapon) {
