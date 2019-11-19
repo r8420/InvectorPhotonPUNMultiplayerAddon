@@ -55,6 +55,14 @@ public class PUN_SyncPlayer : MonoBehaviourPunCallbacks, IPunObservable {
         thirdPersonController = GetComponent<vThirdPersonController>();
         shooterMeleeInput = GetComponent<vShooterMeleeInput>();
         isShooterPlayer = shooterMeleeInput != null;
+
+
+
+        if (PhotonNetwork.OfflineMode) {
+            if (!PhotonNetwork.AllocateViewID(GetComponent<PhotonView>())) {
+                enabled = false;
+            }
+        }
     }
 
     void Start() {
