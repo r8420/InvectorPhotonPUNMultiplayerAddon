@@ -16,12 +16,12 @@ Follow these steps to setup photon to use this package properly.
 3. Go to your account page and setup a new app
 4. Grab your AppId
 
-    <img src="https://raw.githubusercontent.com/wesleywh/InvectorPhotonPUNMultiplayerAddon/master/setup_app_id.PNG" width="60%;" height="100%;" />
+    <img src="https://raw.githubusercontent.com/r8420/InvectorPhotonPUNMultiplayerAddon/master/setup_app_id.PNG" width="60%;" height="100%;" />
 5. Download PUN 2 from the Asset Store to Unity (NOT PUN)
    - assetstore.unity.com/packages/tools/network/pun-2-free-119922
 6. When the project starts add your appid from your created photon app to the pop-up window.
 
-    <img src="https://raw.githubusercontent.com/wesleywh/InvectorPhotonPUNMultiplayerAddon/master/add_app_id.PNG" width="40%;" height="100%;" />
+    <img src="https://raw.githubusercontent.com/r8420/InvectorPhotonPUNMultiplayerAddon/master/add_app_id.PNG" width="40%;" height="100%;" />
 7. Done!
 
 ## Setup
@@ -29,11 +29,11 @@ Follow these steps to setup photon to use this package properly.
 2. Make sure the pre-setup section is done!
 3. Import this package only selecting the modify scripts
 
-   <img src="https://raw.githubusercontent.com/wesleywh/InvectorPhotonPUNMultiplayerAddon/master/firstImport.JPG" width="40%;" height="100%;" />
+   <img src="https://raw.githubusercontent.com/r8420/InvectorPhotonPUNMultiplayerAddon/master/firstImport.JPG" width="40%;" height="100%;" />
 4. Open the menu Invector/Multiplayer/Add Multiplayer To Invector Scripts
 5. When done re-import this package and select everything
 
-   <img src="https://raw.githubusercontent.com/wesleywh/InvectorPhotonPUNMultiplayerAddon/master/secondImport.JPG" width="40%;" height="100%;" />
+   <img src="https://raw.githubusercontent.com/r8420/InvectorPhotonPUNMultiplayerAddon/master/secondImport.JPG" width="40%;" height="100%;" />
 6. Open Invector/Multiplayer/Make Player Multiplayer Compatible
 7. Follow the help box instructions
 8. When done make the player multiplayer compatible run the Invector/Multiplayer/Convert Scene To Multiplayer
